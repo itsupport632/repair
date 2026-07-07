@@ -2,22 +2,35 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>My WebApp</title>
+  <title>ระบบแจ้งซ่อม IT</title>
   <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-    }
-    iframe {
-      width: 100%;
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       height: 100vh;
-      border: none;
+      margin: 0;
+      background-color: #f3f4f6;
+    }
+    .btn {
+      display: inline-block;
+      padding: 15px 30px;
+      font-size: 18px;
+      color: white;
+      background-color: #1a73e8;
+      text-decoration: none;
+      border-radius: 5px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
   </style>
 </head>
 <body>
-  <!-- ใส่ URL ของ Apps Script Web App ตรงนี้ -->
-  <iframe src="https://script.google.com/macros/s/AKfycby0onug_zy0TsK6VWFJfB6zwKKUTCis1gAlLaps2lILzYOLIur678AsyOj0hnR8iPID/exec"></iframe>
+
+  <!-- แทนที่จะใช้ iframe ให้ทำปุ่มกดเปิดหน้าเว็บตรงๆ แทน -->
+  <a class="btn" href="https://script.google.com/macros/s/AKfycbzcq7EwLBJke0MXy15z3TlvXuEgbIOtI39avxqVzIWbENOK4K2a6-VCoo_Lr0bZdiR2/exec" target="_blank">
+    เข้าสู่ระบบแจ้งซ่อม IT
+  </a>
+
 </body>
 </html>

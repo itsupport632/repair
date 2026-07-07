@@ -2,47 +2,22 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ระบบแจ้งซ่อม IT - ส่งคำขอ</title>
+  <title>My WebApp</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    iframe {
+      width: 100%;
+      height: 100vh;
+      border: none;
+    }
+  </style>
 </head>
 <body>
-  <h1>ฟอร์มแจ้งซ่อม IT</h1>
-  
-  <form id="repairForm">
-    <label>ชื่อผู้แจ้ง:</label><br>
-    <input type="text" id="name" required><br><br>
-    
-    <label>อาการเสีย:</label><br>
-    <textarea id="detail" required></textarea><br><br>
-    
-    <button type="submit">ส่งข้อมูลแจ้งซ่อม</button>
-  </form>
-
-  <script>
-    // ⚠️ นำ URL ที่ได้จากการ Deploy Web App ของ Google Apps Script มาใส่ที่นี่
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby0onug_zy0TsK6VWFJfB6zwKKUTCis1gAlLaps2lILzYOLIur678AsyOj0hnR8iPID/exec";
-
-    document.getElementById('repairForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const payload = {
-        name: document.getElementById('name').value,
-        detail: document.getElementById('detail').value
-      };
-
-      // ยิงข้อมูลไปที่ Google Apps Script (ฟังก์ชัน doPost)
-      fetch(WEB_APP_URL, {
-        method: 'POST',
-        mode: 'no-cors', // จำเป็นต้องใส่เพื่อเลี่ยงติดปัญหา CORS
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-      .then(() => {
-        alert('ส่งข้อมูลแจ้งซ่อมเรียบร้อยแล้ว!');
-        document.getElementById('repairForm').reset();
-      })
-      .catch(err => alert('เกิดข้อผิดพลาด: ' + err));
-    });
-  </script>
+  <!-- ใส่ URL ของ Apps Script Web App ตรงนี้ -->
+  <iframe src="https://script.google.com/macros/s/AKfycby0onug_zy0TsK6VWFJfB6zwKKUTCis1gAlLaps2lILzYOLIur678AsyOj0hnR8iPID/exec"></iframe>
 </body>
 </html>

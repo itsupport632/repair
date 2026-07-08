@@ -1,36 +1,620 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>ระบบแจ้งซ่อม IT</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #f3f4f6;
-    }
-    .btn {
-      display: inline-block;
-      padding: 15px 30px;
-      font-size: 18px;
-      color: white;
-      background-color: #1a73e8;
-      text-decoration: none;
-      border-radius: 5px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Console — ศูนย์รวมระบบ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f7f8f9;
+    --panel:#ffffff;
+    --panel-hover:#fbfcfd;
+    --line:#e2e5e8;
+    --line-strong:#d3d3d3;
+    --ink:#36454f;
+    --ink-soft:#708090;
+    --ink-faint:#9aa5ad;
+    --accent:#1f6feb;
+    --accent-soft:#eaf1fe;
+    --cyan:#06b6d4;
+    --cyan-soft:#e3f8fb;
+    --err:#d1453d;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    min-height:100vh;
+    font-family:'Inter', sans-serif;
+    color:var(--ink);
+  }
+  .wrap{
+    max-width:960px;
+    margin:0 auto;
+    padding:56px 32px 90px;
+  }
+
+  /* header */
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-bottom:36px;
+    flex-wrap:wrap;
+    gap:16px;
+    padding-bottom:24px;
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex; align-items:center; gap:14px;}
+  .brand-mark{
+    width:40px; height:40px;
+    border-radius:10px;
+    background:linear-gradient(135deg, var(--accent), var(--cyan));
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:15px;
+    flex-shrink:0;
+    box-shadow:0 6px 16px rgba(31,111,235,0.22);
+  }
+  h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:23px;
+    letter-spacing:-0.01em;
+    margin:0;
+    color:var(--ink);
+  }
+  .sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:3px;
+  }
+  .status-line{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 14px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:20px;
+  }
+  .dot{
+    width:7px; height:7px; border-radius:50%;
+    background:var(--cyan);
+    box-shadow:0 0 0 3px var(--cyan-soft);
+    flex-shrink:0;
+  }
+
+  /* toolbar */
+  .toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .count-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-faint);
+    text-transform:uppercase;
+    letter-spacing:0.07em;
+  }
+  #search{
+    font-family:'Inter', sans-serif;
+    font-size:13px;
+    padding:10px 15px;
+    border:1px solid var(--line);
+    border-radius:9px;
+    background:var(--panel);
+    color:var(--ink);
+    width:230px;
+    outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  #search::placeholder{color:var(--ink-faint);}
+  #search:focus{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);}
+
+  /* grid */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(224px, 1fr));
+    gap:14px;
+  }
+  .card{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    text-decoration:none;
+    color:inherit;
+    transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    cursor:pointer;
+    min-height:128px;
+  }
+  .card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 12px 28px rgba(31,111,235,0.10);
+    border-color:#c9dcfb;
+  }
+  .card:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+  }
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+  }
+  .icon{
+    width:36px; height:36px;
+    border-radius:9px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    background:var(--icon-bg, var(--accent-soft));
+    color:var(--icon-color, var(--accent));
+    flex-shrink:0;
+  }
+  .edit-btn{
+    background:none; border:none; cursor:pointer;
+    color:var(--ink-faint);
+    font-size:13px;
+    padding:4px;
+    border-radius:6px;
+    opacity:0;
+    transition:opacity .12s ease, color .12s ease;
+  }
+  .card:hover .edit-btn{opacity:1;}
+  .edit-btn:hover{color:var(--accent);}
+  .card-title{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:15.5px;
+    line-height:1.35;
+    color:var(--ink);
+  }
+  .card-url{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-faint);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    margin-top:-6px;
+  }
+
+  /* add card */
+  .add-card{
+    background:transparent;
+    border:1.5px dashed var(--line-strong);
+    color:var(--ink-faint);
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    gap:8px;
+  }
+  .add-card:hover{
+    border-color:var(--accent);
+    color:var(--accent);
+    background:var(--accent-soft);
+    box-shadow:none;
+    transform:none;
+  }
+  .add-plus{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:24px;
+    line-height:1;
+  }
+  .add-label{
+    font-family:'Inter', sans-serif;
+    font-size:13px;
+    font-weight:500;
+  }
+
+  .empty{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--ink-faint);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    line-height:1.7;
+  }
+
+  /* modal */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(54,69,79,0.35);
+    backdrop-filter:blur(2px);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:50;
+  }
+  .overlay.open{display:flex;}
+  .modal{
+    background:var(--panel);
+    border-radius:16px;
+    width:100%;
+    max-width:400px;
+    padding:26px;
+    box-shadow:0 24px 60px rgba(31,111,235,0.14), 0 4px 16px rgba(0,0,0,0.08);
+  }
+  .modal h2{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:17px;
+    margin:0 0 18px;
+    color:var(--ink);
+  }
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:var(--ink-faint);
+    margin-bottom:6px;
+  }
+  .field input{
+    width:100%;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    font-family:'Inter', sans-serif;
+    font-size:14px;
+    outline:none;
+    background:var(--bg);
+    color:var(--ink);
+  }
+  .field input::placeholder{color:var(--ink-faint);}
+  .field input:focus{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);}
+  .swatches{display:flex; gap:8px; margin-top:2px;}
+  .swatch{
+    width:26px; height:26px;
+    border-radius:50%;
+    cursor:pointer;
+    border:2px solid transparent;
+  }
+  .swatch.active{border-color:var(--ink);}
+  .modal-actions{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:22px;
+    gap:10px;
+  }
+  .btn{
+    font-family:'Inter', sans-serif;
+    font-size:13px;
+    font-weight:600;
+    padding:10px 17px;
+    border-radius:8px;
+    border:1px solid transparent;
+    cursor:pointer;
+  }
+  .btn-primary{background:var(--accent); color:#fff;}
+  .btn-primary:hover{background:#1a5fd0;}
+  .btn-primary:disabled{opacity:0.6; cursor:default;}
+  .btn-ghost{background:none; color:var(--ink-soft); border-color:var(--line);}
+  .btn-ghost:hover{color:var(--ink); border-color:var(--line-strong);}
+  .btn-danger{background:none; color:var(--err);}
+  .btn-danger:hover{text-decoration:underline;}
+
+  footer{
+    margin-top:48px;
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-faint);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .card{transition:none;}
+  }
+</style>
 </head>
 <body>
 
-  <!-- แทนที่จะใช้ iframe ให้ทำปุ่มกดเปิดหน้าเว็บตรงๆ แทน -->
-  <a class="btn" href="https://script.google.com/macros/s/AKfycbzcq7EwLBJke0MXy15z3TlvXuEgbIOtI39avxqVzIWbENOK4K2a6-VCoo_Lr0bZdiR2/exec" target="_blank">
-    เข้าสู่ระบบแจ้งซ่อม IT
-  </a>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="brand-mark">IT</div>
+      <div>
+        <h1>ศูนย์รวมระบบ</h1>
+        <div class="sub">แผนกไอที · จุดเข้าถึงเว็บแอปพลิเคชันทั้งหมด</div>
+      </div>
+    </div>
+    <div class="status-line"><span class="dot"></span><span id="status-text">กำลังโหลด...</span></div>
+  </header>
+
+  <div class="toolbar">
+    <span class="count-label" id="count-label">0 ระบบ</span>
+    <input type="text" id="search" placeholder="ค้นหาระบบ...">
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>เพิ่ม แก้ไข หรือลบระบบได้จากหน้านี้ · ข้อมูลซิงก์กับฐานข้อมูลกลาง</footer>
+</div>
+
+<!-- Modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2 id="modal-title">เพิ่มระบบใหม่</h2>
+    <input type="hidden" id="edit-id">
+    <div class="field">
+      <label for="f-name">ชื่อระบบ</label>
+      <input type="text" id="f-name" placeholder="เช่น ระบบแจ้งซ่อม IT">
+    </div>
+    <div class="field">
+      <label for="f-url">ลิงก์ (URL)</label>
+      <input type="text" id="f-url" placeholder="https://...">
+    </div>
+    <div class="field">
+      <label>สี</label>
+      <div class="swatches" id="swatches"></div>
+    </div>
+    <div class="field">
+      <label for="f-pass">รหัสผ่านแก้ไข</label>
+      <input type="password" id="f-pass" placeholder="รหัสผ่านสำหรับเพิ่ม/แก้ไข/ลบ">
+    </div>
+    <div class="field-error" id="modal-error" style="display:none; color:var(--err); font-family:'IBM Plex Mono', monospace; font-size:12px; margin-top:-8px;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="delete-btn" style="display:none;">ลบระบบ</button>
+      <div style="display:flex; gap:8px; margin-left:auto;">
+        <button class="btn btn-ghost" id="cancel-btn">ยกเลิก</button>
+        <button class="btn btn-primary" id="save-btn">บันทึก</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 🔧 วาง Web App URL จาก Google Apps Script ตรงนี้ (ดูขั้นตอนใน Code.gs)
+  const API_URL = 'https://script.google.com/macros/s/AKfycbxH-eVUlRnu_e8r29pqzq8awRYdMHjbue15EjBJ6nm3QV1gBs6W7TZE48wnCFMITnXC/exec';
+
+  const COLORS = ['#1f6feb','#06b6d4','#5b6fd8','#0f9c8f','#708090','#c98a3e'];
+
+  let apps = [];
+  let selectedColor = COLORS[0];
+  let editingId = null;
+
+  const statusDot = document.querySelector('.dot');
+  const statusText = document.getElementById('status-text');
+
+  function setStatus(state, label){
+    statusDot.style.background = state === 'error' ? 'var(--err)' : (state === 'loading' ? '#e08a1f' : 'var(--cyan)');
+    statusText.textContent = label;
+  }
+
+  async function fetchApps(){
+    if(API_URL.indexOf('PUT_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') !== -1){
+      setStatus('error', 'ยังไม่ได้ตั้งค่า API_URL ในไฟล์ index.html');
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">ยังไม่ได้เชื่อมต่อฐานข้อมูลกลาง<br>ใส่ Web App URL ในตัวแปร API_URL ก่อนใช้งาน</div>';
+      return;
+    }
+    setStatus('loading', 'กำลังโหลดข้อมูล...');
+    try{
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      if(!data.ok) throw new Error(data.error || 'โหลดข้อมูลไม่สำเร็จ');
+      apps = data.apps || [];
+      setStatus('ok', 'ข้อมูลอัปเดตล่าสุด');
+      render();
+    }catch(err){
+      console.error(err);
+      setStatus('error', 'โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชอีกครั้ง');
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">เชื่อมต่อฐานข้อมูลไม่สำเร็จ<br>ตรวจสอบอินเทอร์เน็ตหรือลองรีเฟรชหน้านี้</div>';
+    }
+  }
+
+  async function callApi(params){
+    const body = new URLSearchParams(params);
+    const res = await fetch(API_URL, { method: 'POST', body: body });
+    const data = await res.json();
+    if(!data.ok) throw new Error(data.error || 'การบันทึกล้มเหลว');
+    return data;
+  }
+
+  const grid = document.getElementById('grid');
+  const searchInput = document.getElementById('search');
+  const countLabel = document.getElementById('count-label');
+  const overlay = document.getElementById('overlay');
+  const modalTitle = document.getElementById('modal-title');
+  const nameInput = document.getElementById('f-name');
+  const urlInput = document.getElementById('f-url');
+  const swatchesEl = document.getElementById('swatches');
+  const deleteBtn = document.getElementById('delete-btn');
+  const passInput = document.getElementById('f-pass');
+  const modalError = document.getElementById('modal-error');
+  const saveBtn = document.getElementById('save-btn');
+
+  function initials(name){
+    const clean = name.trim();
+    if(!clean) return '?';
+    const parts = clean.split(/\s+/);
+    if(parts.length === 1) return clean.slice(0,2).toUpperCase();
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+
+  function hostLabel(url){
+    try{
+      const u = new URL(url);
+      return u.hostname.replace('www.','');
+    }catch(e){
+      return url;
+    }
+  }
+
+  function render(){
+    const q = searchInput.value.trim().toLowerCase();
+    const filtered = apps.filter(a => a.name.toLowerCase().includes(q) || a.url.toLowerCase().includes(q));
+
+    countLabel.textContent = apps.length + ' ระบบ';
+    grid.innerHTML = '';
+
+    if(apps.length && !filtered.length){
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">ไม่พบระบบที่ค้นหา</div>';
+    }
+
+    filtered.forEach(app => {
+      const card = document.createElement('a');
+      card.className = 'card';
+      card.href = app.url;
+      card.target = '_blank';
+      card.rel = 'noopener noreferrer';
+      card.innerHTML = `
+        <div class="card-top">
+          <div class="icon" style="--icon-bg:${app.color}1a; --icon-color:${app.color};">${initials(app.name)}</div>
+          <button class="edit-btn" type="button" title="แก้ไข">✎</button>
+        </div>
+        <div>
+          <div class="card-title">${escapeHtml(app.name)}</div>
+          <div class="card-url">${escapeHtml(hostLabel(app.url))}</div>
+        </div>
+      `;
+      card.querySelector('.edit-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openModal(app);
+      });
+      grid.appendChild(card);
+    });
+
+    const addCard = document.createElement('button');
+    addCard.className = 'card add-card';
+    addCard.type = 'button';
+    addCard.innerHTML = '<span class="add-plus">+</span><span class="add-label">เพิ่มระบบ</span>';
+    addCard.addEventListener('click', () => openModal(null));
+    grid.appendChild(addCard);
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function buildSwatches(){
+    swatchesEl.innerHTML = '';
+    COLORS.forEach(c => {
+      const s = document.createElement('div');
+      s.className = 'swatch';
+      s.style.background = c;
+      if(c === selectedColor) s.classList.add('active');
+      s.addEventListener('click', () => {
+        selectedColor = c;
+        buildSwatches();
+      });
+      swatchesEl.appendChild(s);
+    });
+  }
+
+  function openModal(app){
+    editingId = app ? app.id : null;
+    modalTitle.textContent = app ? 'แก้ไขระบบ' : 'เพิ่มระบบใหม่';
+    nameInput.value = app ? app.name : '';
+    urlInput.value = app ? app.url : '';
+    passInput.value = '';
+    modalError.style.display = 'none';
+    nameInput.style.borderColor = 'var(--line)';
+    urlInput.style.borderColor = 'var(--line)';
+    selectedColor = app ? app.color : COLORS[apps.length % COLORS.length];
+    deleteBtn.style.display = app ? 'inline-block' : 'none';
+    buildSwatches();
+    overlay.classList.add('open');
+    setTimeout(() => nameInput.focus(), 50);
+  }
+
+  function closeModal(){
+    overlay.classList.remove('open');
+  }
+
+  document.getElementById('cancel-btn').addEventListener('click', closeModal);
+  overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(); });
+
+  saveBtn.addEventListener('click', async () => {
+    const name = nameInput.value.trim();
+    let url = urlInput.value.trim();
+    const passcode = passInput.value;
+    modalError.style.display = 'none';
+
+    if(!name || !url){
+      nameInput.style.borderColor = name ? 'var(--line)' : 'var(--err)';
+      urlInput.style.borderColor = url ? 'var(--line)' : 'var(--err)';
+      return;
+    }
+    if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    if(!passcode){
+      modalError.textContent = 'กรุณากรอกรหัสผ่าน';
+      modalError.style.display = 'block';
+      return;
+    }
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'กำลังบันทึก...';
+    try{
+      if(editingId){
+        await callApi({ action:'update', id:editingId, name, url, color:selectedColor, passcode });
+      }else{
+        await callApi({ action:'add', name, url, color:selectedColor, passcode });
+      }
+      await fetchApps();
+      closeModal();
+    }catch(err){
+      modalError.textContent = err.message;
+      modalError.style.display = 'block';
+    }finally{
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'บันทึก';
+    }
+  });
+
+  deleteBtn.addEventListener('click', async () => {
+    const passcode = passInput.value;
+    modalError.style.display = 'none';
+    if(!passcode){
+      modalError.textContent = 'กรุณากรอกรหัสผ่านเพื่อลบ';
+      modalError.style.display = 'block';
+      return;
+    }
+    deleteBtn.disabled = true;
+    try{
+      await callApi({ action:'delete', id:editingId, passcode });
+      await fetchApps();
+      closeModal();
+    }catch(err){
+      modalError.textContent = err.message;
+      modalError.style.display = 'block';
+    }finally{
+      deleteBtn.disabled = false;
+    }
+  });
+
+  searchInput.addEventListener('input', render);
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape') closeModal();
+  });
+
+  fetchApps();
+  setInterval(fetchApps, 30000); // ดึงข้อมูลใหม่ทุก 30 วินาที ให้เห็นการเปลี่ยนแปลงจากคนอื่น
+</script>
 
 </body>
 </html>

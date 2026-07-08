@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IT Console — ศูนย์รวมระบบ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -386,13 +387,25 @@
 
 <script>
   // 🔧 วาง Web App URL จาก Google Apps Script ตรงนี้ (ดูขั้นตอนใน Code.gs)
-  const API_URL = 'https://script.google.com/macros/s/AKfycbxH-eVUlRnu_e8r29pqzq8awRYdMHjbue15EjBJ6nm3QV1gBs6W7TZE48wnCFMITnXC/exec';
+  const API_URL = 'https://script.google.com/macros/s/AKfycbxLp44JxIup7O62qRZ5rJ1_4-EuXV9g_cOnzziazIlKGXbxPHqPGiWXgjyHFzOKUaOg/exec';
 
   const COLORS = ['#1f6feb','#06b6d4','#5b6fd8','#0f9c8f','#708090','#c98a3e'];
+  const CACHE_KEY = 'it-console-cache-v1';
 
   let apps = [];
   let selectedColor = COLORS[0];
   let editingId = null;
+
+  function loadCache(){
+    try{
+      const raw = localStorage.getItem(CACHE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    }catch(e){ return null; }
+  }
+  function saveCache(list){
+    try{ localStorage.setItem(CACHE_KEY, JSON.stringify(list)); }
+    catch(e){ /* ไม่เป็นไร ข้ามได้ */ }
+  }
 
   const statusDot = document.querySelector('.dot');
   const statusText = document.getElementById('status-text');
@@ -402,24 +415,30 @@
     statusText.textContent = label;
   }
 
-  async function fetchApps(){
+  async function fetchApps(isBackground){
     if(API_URL.indexOf('PUT_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') !== -1){
       setStatus('error', 'ยังไม่ได้ตั้งค่า API_URL ในไฟล์ index.html');
-      grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">ยังไม่ได้เชื่อมต่อฐานข้อมูลกลาง<br>ใส่ Web App URL ในตัวแปร API_URL ก่อนใช้งาน</div>';
+      if(!apps.length) grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">ยังไม่ได้เชื่อมต่อฐานข้อมูลกลาง<br>ใส่ Web App URL ในตัวแปร API_URL ก่อนใช้งาน</div>';
       return;
     }
-    setStatus('loading', 'กำลังโหลดข้อมูล...');
+    if(!isBackground) setStatus('loading', 'กำลังโหลดข้อมูล...');
     try{
       const res = await fetch(API_URL);
       const data = await res.json();
       if(!data.ok) throw new Error(data.error || 'โหลดข้อมูลไม่สำเร็จ');
       apps = data.apps || [];
+      saveCache(apps);
       setStatus('ok', 'ข้อมูลอัปเดตล่าสุด');
       render();
     }catch(err){
       console.error(err);
-      setStatus('error', 'โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชอีกครั้ง');
-      grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">เชื่อมต่อฐานข้อมูลไม่สำเร็จ<br>ตรวจสอบอินเทอร์เน็ตหรือลองรีเฟรชหน้านี้</div>';
+      if(apps.length){
+        // มีข้อมูลจากแคชอยู่แล้ว แค่แจ้งว่าอัปเดตล่าสุดไม่สำเร็จ ไม่ต้องเคลียร์หน้าจอ
+        setStatus('error', 'อัปเดตข้อมูลล่าสุดไม่สำเร็จ (แสดงข้อมูลที่บันทึกไว้)');
+      }else{
+        setStatus('error', 'โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชอีกครั้ง');
+        grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">เชื่อมต่อฐานข้อมูลไม่สำเร็จ<br>ตรวจสอบอินเทอร์เน็ตหรือลองรีเฟรชหน้านี้</div>';
+      }
     }
   }
 
@@ -612,8 +631,16 @@
     if(e.key === 'Escape') closeModal();
   });
 
-  fetchApps();
-  setInterval(fetchApps, 30000); // ดึงข้อมูลใหม่ทุก 30 วินาที ให้เห็นการเปลี่ยนแปลงจากคนอื่น
+  const cached = loadCache();
+  if(cached && cached.length){
+    apps = cached;
+    render();
+    setStatus('loading', 'กำลังอัปเดตข้อมูลล่าสุด...');
+    fetchApps(true);
+  }else{
+    fetchApps(false);
+  }
+  setInterval(() => fetchApps(true), 30000); // ดึงข้อมูลใหม่ทุก 30 วินาที ให้เห็นการเปลี่ยนแปลงจากคนอื่น
 </script>
 
 </body>

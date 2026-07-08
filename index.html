@@ -1,1138 +1,649 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IT Console — ศูนย์รวมระบบ</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  /* ============ Modern Minimalist theme tokens ============ */
-  :root{
-    --charcoal:#36454f;
-    --charcoal-dark:#2a343c;
-    --charcoal-darker:#212930;
-    --slate:#708090;
-    --light-gray:#d3d3d3;
-    --white:#ffffff;
-
-    --bg:#f7f7f8;
-    --panel:#ffffff;
-    --panel-hover:#fbfbfc;
-    --line:#e2e4e6;
-    --line-strong:#cfd2d5;
-
-    --ink:var(--charcoal);
-    --ink-soft:var(--slate);
-    --ink-faint:#9aa5ad;
-
-    --accent:var(--charcoal);
-    --accent-soft:#eceeef;
-
-    --side-bg:var(--charcoal);
-    --side-bg-alt:var(--charcoal-dark);
-    --side-ink:#ffffff;
-    --side-ink-soft:rgba(255,255,255,0.56);
-    --side-ink-faint:rgba(255,255,255,0.34);
-    --side-line:rgba(255,255,255,0.10);
-    --side-hover:rgba(255,255,255,0.06);
-    --side-active:rgba(255,255,255,0.14);
-
-    --err:#c0463d;
-    --radius:10px;
-    --sidebar-w:252px;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:var(--bg);
-    min-height:100vh;
-    font-family:'Inter', sans-serif;
-    color:var(--ink);
-  }
-  a{color:inherit;}
-  button{font:inherit;}
-
-  /* ============ App shell ============ */
-  .shell{
-    display:flex;
-    min-height:100vh;
-  }
-
-  /* ---- Sidebar ---- */
-  .sidebar{
-    width:var(--sidebar-w);
-    flex-shrink:0;
-    background:var(--side-bg);
-    color:var(--side-ink);
-    display:flex;
-    flex-direction:column;
-    padding:22px 14px 18px;
-    position:sticky;
-    top:0;
-    height:100vh;
-    overflow-y:auto;
-  }
-  .side-brand{
-    display:flex;
-    align-items:center;
-    gap:11px;
-    padding:4px 8px 22px;
-  }
-  .side-mark{
-    width:34px; height:34px;
-    border-radius:9px;
-    background:var(--side-hover);
-    border:1px solid var(--side-line);
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:13px;
-    flex-shrink:0;
-  }
-  .side-brand h1{
-    font-family:'Space Grotesk', sans-serif;
-    font-weight:600;
-    font-size:14.5px;
-    margin:0;
-    letter-spacing:-0.01em;
-  }
-  .side-brand .sub{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:10.5px;
-    color:var(--side-ink-soft);
-    margin-top:2px;
-  }
-
-  .side-section-label{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:10.5px;
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    color:var(--side-ink-faint);
-    padding:0 10px;
-    margin:14px 0 6px;
-  }
-
-  .nav-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;}
-  .nav-item{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:8px 10px;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:13px;
-    font-weight:500;
-    color:var(--side-ink-soft);
-    user-select:none;
-    transition:background .12s ease, color .12s ease;
-  }
-  .nav-item:hover{background:var(--side-hover); color:var(--side-ink);}
-  .nav-item.active{background:var(--side-active); color:var(--side-ink);}
-  .nav-icon{
-    width:22px; height:22px;
-    border-radius:6px;
-    background:rgba(255,255,255,0.08);
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Space Grotesk', sans-serif;
-    font-size:10.5px;
-    font-weight:600;
-    flex-shrink:0;
-  }
-  .nav-item.active .nav-icon{background:rgba(255,255,255,0.18);}
-  .nav-label{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-  .nav-count{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:10.5px;
-    color:var(--side-ink-faint);
-    flex-shrink:0;
-  }
-  .nav-item.active .nav-count{color:var(--side-ink-soft);}
-
-  .cat-item{position:relative;}
-  .cat-actions{
-    display:none;
-    align-items:center;
-    gap:2px;
-    flex-shrink:0;
-  }
-  .cat-item:hover .cat-actions{display:flex;}
-  .cat-item:hover .nav-count{display:none;}
-  .cat-action-btn{
-    width:20px; height:20px;
-    background:none; border:none;
-    color:var(--side-ink-faint);
-    cursor:pointer;
-    border-radius:5px;
-    font-size:11px;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .cat-action-btn:hover{color:var(--side-ink); background:rgba(255,255,255,0.12);}
-  .cat-item[draggable="true"]{cursor:grab;}
-  .cat-item.dragging{opacity:0.4;}
-  .cat-item.drag-over{box-shadow:inset 0 2px 0 rgba(255,255,255,0.5);}
-
-  .add-cat-btn{
-    display:flex;
-    align-items:center;
-    gap:9px;
-    padding:8px 10px;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:12.5px;
-    color:var(--side-ink-faint);
-    background:none;
-    border:1px dashed var(--side-line);
-    margin-top:6px;
-    width:100%;
-    text-align:left;
-    transition:color .12s ease, border-color .12s ease;
-  }
-  .add-cat-btn:hover{color:var(--side-ink); border-color:var(--side-ink-soft);}
-
-  .sidebar-footer{
-    margin-top:auto;
-    padding:14px 10px 2px;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:10px;
-    color:var(--side-ink-faint);
-    border-top:1px solid var(--side-line);
-  }
-
-  /* ---- Main ---- */
-  .main{
-    flex:1;
-    min-width:0;
-    padding:40px 40px 90px;
-  }
-  .wrap{max-width:980px;}
-
-  header{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-end;
-    margin-bottom:28px;
-    flex-wrap:wrap;
-    gap:16px;
-    padding-bottom:22px;
-    border-bottom:1px solid var(--line);
-  }
-  h2.page-title{
-    font-family:'Space Grotesk', sans-serif;
-    font-weight:700;
-    font-size:22px;
-    letter-spacing:-0.01em;
-    margin:0;
-    color:var(--ink);
-  }
-  .page-sub{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12px;
-    color:var(--ink-soft);
-    margin-top:4px;
-  }
-  .status-line{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12px;
-    color:var(--ink-soft);
-    display:flex;
-    align-items:center;
-    gap:8px;
-    padding:8px 14px;
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:20px;
-  }
-  .dot{
-    width:7px; height:7px; border-radius:50%;
-    background:var(--slate);
-    box-shadow:0 0 0 3px var(--accent-soft);
-    flex-shrink:0;
-  }
-
-  .toolbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
-    gap:12px;
-    flex-wrap:wrap;
-  }
-  .count-label{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12px;
-    color:var(--ink-faint);
-    text-transform:uppercase;
-    letter-spacing:0.07em;
-  }
-  #search{
-    font-family:'Inter', sans-serif;
-    font-size:13px;
-    padding:10px 15px;
-    border:1px solid var(--line);
-    border-radius:9px;
-    background:var(--panel);
-    color:var(--ink);
-    width:230px;
-    outline:none;
-    transition:border-color .15s ease, box-shadow .15s ease;
-  }
-  #search::placeholder{color:var(--ink-faint);}
-  #search:focus{border-color:var(--charcoal); box-shadow:0 0 0 3px var(--accent-soft);}
-
-  .grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(224px, 1fr));
-    gap:14px;
-  }
-  .card{
-    position:relative;
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    padding:20px;
-    display:flex;
-    flex-direction:column;
-    gap:14px;
-    text-decoration:none;
-    color:inherit;
-    transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-    cursor:pointer;
-    min-height:128px;
-  }
-  .card:hover{
-    transform:translateY(-2px);
-    box-shadow:0 12px 26px rgba(54,69,79,0.10);
-    border-color:var(--line-strong);
-  }
-  .card:focus-visible{
-    outline:2px solid var(--charcoal);
-    outline-offset:2px;
-  }
-  .card-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-  }
-  .icon{
-    width:36px; height:36px;
-    border-radius:9px;
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Space Grotesk', sans-serif;
-    font-weight:600;
-    font-size:14px;
-    background:var(--icon-bg, var(--accent-soft));
-    color:var(--icon-color, var(--charcoal));
-    flex-shrink:0;
-  }
-  .edit-btn{
-    background:none; border:none; cursor:pointer;
-    color:var(--ink-faint);
-    font-size:13px;
-    padding:4px;
-    border-radius:6px;
-    opacity:0;
-    transition:opacity .12s ease, color .12s ease;
-  }
-  .card:hover .edit-btn{opacity:1;}
-  .edit-btn:hover{color:var(--charcoal);}
-  .card-title{
-    font-family:'Space Grotesk', sans-serif;
-    font-weight:600;
-    font-size:15.5px;
-    line-height:1.35;
-    color:var(--ink);
-  }
-  .card-url{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:11px;
-    color:var(--ink-faint);
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-    margin-top:-6px;
-  }
-  .card-cat-chip{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:10px;
-    color:var(--ink-faint);
-    text-transform:uppercase;
-    letter-spacing:0.04em;
-  }
-
-  .add-card{
-    background:transparent;
-    border:1.5px dashed var(--line-strong);
-    color:var(--ink-faint);
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    gap:8px;
-  }
-  .add-card:hover{
-    border-color:var(--charcoal);
-    color:var(--charcoal);
-    background:var(--accent-soft);
-    box-shadow:none;
-    transform:none;
-  }
-  .add-plus{
-    font-family:'Space Grotesk', sans-serif;
-    font-size:24px;
-    line-height:1;
-  }
-  .add-label{
-    font-family:'Inter', sans-serif;
-    font-size:13px;
-    font-weight:500;
-  }
-
-  .empty{
-    text-align:center;
-    padding:60px 20px;
-    color:var(--ink-faint);
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12.5px;
-    line-height:1.7;
-  }
-
-  /* ---- modal ---- */
-  .overlay{
-    position:fixed; inset:0;
-    background:rgba(33,41,48,0.4);
-    backdrop-filter:blur(2px);
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-    z-index:50;
-  }
-  .overlay.open{display:flex;}
-  .modal{
-    background:var(--panel);
-    border-radius:16px;
-    width:100%;
-    max-width:400px;
-    padding:26px;
-    box-shadow:0 24px 60px rgba(33,41,48,0.16), 0 4px 16px rgba(0,0,0,0.08);
-  }
-  .modal h2{
-    font-family:'Space Grotesk', sans-serif;
-    font-size:17px;
-    margin:0 0 18px;
-    color:var(--ink);
-  }
-  .field{margin-bottom:14px;}
-  .field label{
-    display:block;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:11px;
-    text-transform:uppercase;
-    letter-spacing:0.05em;
-    color:var(--ink-faint);
-    margin-bottom:6px;
-  }
-  .field input, .field select{
-    width:100%;
-    padding:10px 12px;
-    border:1px solid var(--line);
-    border-radius:8px;
-    font-family:'Inter', sans-serif;
-    font-size:14px;
-    outline:none;
-    background:var(--bg);
-    color:var(--ink);
-  }
-  .field select{appearance:none; background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23708090' stroke-width='2'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e"); background-repeat:no-repeat; background-position:right 12px center; background-size:16px; padding-right:34px;}
-  .field input::placeholder{color:var(--ink-faint);}
-  .field input:focus, .field select:focus{border-color:var(--charcoal); box-shadow:0 0 0 3px var(--accent-soft);}
-  .swatches{display:flex; gap:8px; margin-top:2px;}
-  .swatch{
-    width:26px; height:26px;
-    border-radius:50%;
-    cursor:pointer;
-    border:2px solid transparent;
-  }
-  .swatch.active{border-color:var(--ink);}
-  .modal-actions{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-top:22px;
-    gap:10px;
-  }
-  .btn{
-    font-family:'Inter', sans-serif;
-    font-size:13px;
-    font-weight:600;
-    padding:10px 17px;
-    border-radius:8px;
-    border:1px solid transparent;
-    cursor:pointer;
-  }
-  .btn-primary{background:var(--charcoal); color:#fff;}
-  .btn-primary:hover{background:var(--charcoal-darker);}
-  .btn-primary:disabled{opacity:0.6; cursor:default;}
-  .btn-ghost{background:none; color:var(--ink-soft); border-color:var(--line);}
-  .btn-ghost:hover{color:var(--ink); border-color:var(--line-strong);}
-  .btn-danger{background:none; color:var(--err);}
-  .btn-danger:hover{text-decoration:underline;}
-
-  footer.page-footer{
-    margin-top:48px;
-    text-align:center;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:11px;
-    color:var(--ink-faint);
-  }
-
-  /* ---- mobile ---- */
-  .mobile-topbar{display:none;}
-  @media (max-width: 860px){
-    .shell{flex-direction:column;}
-    .sidebar{
-      width:100%;
-      height:auto;
-      position:relative;
-      flex-direction:row;
-      align-items:center;
-      padding:14px 16px;
-      overflow-x:auto;
-      overflow-y:hidden;
-      gap:14px;
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IT Console | Standard Can</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js" defer></script>
+  <style>
+    :root {
+      --primary: #2563eb; --primary-hover: #1d4ed8; --sidebar-bg: #0f172a; --sidebar-hover: #1e293b;
+      --bg-main: #f1f5f9; --card-bg: #ffffff; --text-main: #1e293b; --text-muted: #64748b;
+      --border: #e2e8f0; --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
     }
-    .side-brand{padding:0; flex-shrink:0;}
-    .side-section-label{display:none;}
-    .nav-list{flex-direction:row; flex-shrink:0;}
-    .nav-item{white-space:nowrap;}
-    .add-cat-btn{width:auto; margin-top:0; flex-shrink:0;}
-    .sidebar-footer{display:none;}
-    .main{padding:26px 18px 70px;}
-  }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-main); color: var(--text-main); display: flex; min-height: 100vh; }
 
-  @media (prefers-reduced-motion: reduce){
-    .card{transition:none;}
-  }
-</style>
+    .menu-toggle { display: none; background: transparent; border: none; cursor: pointer; padding: 8px; }
+    .menu-toggle svg { width: 28px; height: 28px; color: var(--text-main); }
+    .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99; display: none; }
+
+    .sidebar { width: 260px; background: var(--sidebar-bg); color: #cbd5e1; height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; transition: transform 0.3s ease; }
+    .logo { padding: 24px 20px; font-size: 1.5rem; font-weight: 700; color: #fff; border-bottom: 1px solid #334155; display: flex; align-items: center; gap: 10px; }
+    .nav-menu { flex-grow: 1; padding: 20px 0; overflow-y: auto; }
+    .nav-item { display: flex; align-items: center; padding: 12px 20px; color: #94a3b8; text-decoration: none; transition: 0.2s; font-size: 0.95rem; cursor: pointer; justify-content: space-between; }
+    .nav-item:hover { background: var(--sidebar-hover); color: #fff; }
+    .nav-item.active { background: var(--sidebar-hover); color: #fff; border-left: 3px solid var(--primary); padding-left: 17px; }
+    .nav-item svg { width: 20px; height: 20px; margin-right: 12px; }
+    .nav-item-left { display: flex; align-items: center; }
+    .nav-cat-actions { display: none; gap: 5px; }
+    .nav-item:hover .nav-cat-actions { display: flex; }
+    .nav-cat-actions button { background: transparent; border: none; color: #94a3b8; cursor: pointer; padding: 2px; display: flex; }
+    .nav-cat-actions button:hover { color: #fff; }
+    .nav-cat-actions svg { width: 14px; height: 14px; margin: 0; }
+    .sidebar-footer { padding: 20px; border-top: 1px solid #334155; }
+    .btn-admin { width: 100%; padding: 10px; background: transparent; border: 1px solid #475569; color: #cbd5e1; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; font-size: 0.9rem; }
+    .btn-admin:hover { background: #475569; color: #fff; }
+    .btn-admin.active { background: var(--warning); border-color: var(--warning); color: #fff; }
+
+    .main-content { margin-left: 260px; padding: 24px 32px; width: calc(100% - 260px); transition: margin 0.3s ease; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; gap: 20px; }
+    .header-text h1 { font-size: 1.8rem; font-weight: 600; }
+    .header-text p { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
+    .search-box { position: relative; width: 320px; max-width: 100%; }
+    .search-box svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px; }
+    .search-input { width: 100%; padding: 10px 12px 10px 40px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; background: var(--card-bg); }
+    .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 32px; }
+    .summary-card { background: var(--card-bg); padding: 20px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 16px; border-left: 4px solid var(--primary); }
+    .summary-icon { padding: 12px; border-radius: 8px; color: var(--primary); background: #eff6ff; }
+    .summary-info h3 { font-size: 1.5rem; font-weight: 700; }
+    .summary-info span { font-size: 0.85rem; color: var(--text-muted); }
+
+    .systems-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+    .system-card { background: var(--card-bg); border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid var(--border); overflow: hidden; transition: 0.2s; }
+    .system-card:hover { box-shadow: 0 4px 6px rgba(0,0,0,0.05); transform: translateY(-2px); }
+    .card-header { padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+    .favicon { width: 32px; height: 32px; border-radius: 6px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .favicon img { width: 20px; height: 20px; }
+    .card-title { flex-grow: 1; min-width: 0; }
+    .system-name { font-weight: 600; font-size: 1rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .status-indicator { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+    
+    .status-dot { width: 16px; height: 16px; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .status-dot.online { background: var(--success); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
+    .status-dot.offline { background: var(--danger); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2); }
+    .status-dot.checking { background: var(--warning); animation: pulse 1.5s infinite; }
+    .status-dot.unknown { background: #94a3b8; }
+    .status-svg { width: 10px; height: 10px; color: #fff; stroke-width: 3; }
+    @keyframes pulse { 0% { opacity: 0.5; box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); } 70% { opacity: 1; box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); } 100% { opacity: 0.5; box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); } }
+    
+    .card-body { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
+    .priority-tag { font-size: 0.7rem; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
+    .btn-link { color: var(--primary); text-decoration: none; font-size: 0.85rem; display: flex; align-items: center; gap: 4px; background: #eff6ff; padding: 6px 12px; border-radius: 6px; transition: 0.2s; }
+    .btn-link:hover { background: #dbeafe; }
+    .card-footer { padding: 8px 16px; background: #f8fafc; border-top: 1px solid var(--border); display: none; justify-content: flex-end; gap: 8px; }
+    .card-footer.visible { display: flex; }
+    .btn-icon { background: transparent; border: none; cursor: pointer; padding: 4px; color: var(--text-muted); border-radius: 4px; display: flex; align-items: center; }
+    .btn-icon:hover { background: #e2e8f0; color: var(--text-main); }
+    .btn-icon.delete:hover { color: var(--danger); background: #fee2e2; }
+
+    .skeleton-card { background: #fff; border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
+    .skeleton-header { padding: 16px; display: flex; gap: 12px; border-bottom: 1px solid var(--border); }
+    .skeleton-img { width: 32px; height: 32px; border-radius: 6px; background: #e2e8f0; }
+    .skeleton-line { height: 12px; border-radius: 4px; background: #e2e8f0; margin-bottom: 8px; }
+    .skeleton-body { padding: 16px; display: flex; justify-content: flex-end; }
+    .shimmer { background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    .empty-state { grid-column: 1 / -1; padding: 60px 20px; text-align: center; color: var(--text-muted); background: #fff; border-radius: 10px; border: 1px dashed var(--border); }
+    .empty-state svg { width: 48px; height: 48px; margin-bottom: 16px; color: #cbd5e1; }
+    .empty-state h3 { font-size: 1.1rem; color: var(--text-main); margin-bottom: 8px; }
+    .empty-state p { font-size: 0.9rem; margin-bottom: 20px; }
+
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px); }
+    .modal-overlay.active { display: flex; }
+    .modal { background: #fff; padding: 24px; border-radius: 12px; width: 100%; max-width: 440px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); margin: 16px; }
+    .modal h3 { margin-bottom: 20px; display: flex; align-items: center; gap: 8px; font-size: 1.2rem; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 500; color: var(--text-muted); }
+    .form-control { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; background: #fff; }
+    .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+    .btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn:disabled { opacity: 0.7; cursor: not-allowed; }
+    .btn-secondary { background: #e2e8f0; color: var(--text-main); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .add-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 16px; }
+    .toast { position: fixed; top: 20px; right: 20px; padding: 12px 20px; background: #fff; border-left: 4px solid var(--success); border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 2000; transform: translateX(120%); transition: transform 0.3s; }
+    .toast.show { transform: translateX(0); }
+    .toast.error { border-left-color: var(--danger); }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.active { transform: translateX(0); }
+      .main-content { margin-left: 0; width: 100%; padding: 16px; }
+      .menu-toggle { display: block; }
+      .header { flex-direction: column; align-items: stretch; }
+      .header-text { display: flex; justify-content: space-between; align-items: center; }
+      .search-box { width: 100%; }
+      .systems-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="shell">
+  <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-  <nav class="sidebar" id="sidebar">
-    <div class="side-brand">
-      <div class="side-mark">IT</div>
-      <div>
-        <h1>ศูนย์รวมระบบ</h1>
-        <div class="sub">แผนกไอที</div>
-      </div>
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+      Standard Can
     </div>
-
-    <div class="side-section-label">หมวดหมู่</div>
-    <ul class="nav-list" id="nav-list"></ul>
-
-    <button class="add-cat-btn" id="add-cat-btn" type="button">+ เพิ่มหมวดหมู่</button>
-
-    <div class="sidebar-footer">ลาก ⋮⋮ เพื่อจัดลำดับหมวดหมู่</div>
-  </nav>
-
-  <div class="main">
-    <div class="wrap">
-
-      <header>
-        <div>
-          <h2 class="page-title" id="page-title">ทั้งหมด</h2>
-          <div class="page-sub" id="page-sub">จุดเข้าถึงเว็บแอปพลิเคชันทั้งหมด</div>
+    <nav class="nav-menu" id="sidebarNav">
+      <div class="nav-item active" onclick="selectCategory('all')">
+        <div class="nav-item-left">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          All Systems
         </div>
-        <div class="status-line"><span class="dot"></span><span id="status-text">กำลังโหลด...</span></div>
-      </header>
-
-      <div class="toolbar">
-        <span class="count-label" id="count-label">0 ระบบ</span>
-        <input type="text" id="search" placeholder="ค้นหาระบบ...">
       </div>
+      <div id="categoryList"></div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-admin" id="btnAdmin" onclick="toggleAdminLogin()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <span id="adminBtnText">Admin Login</span>
+      </button>
+    </div>
+  </aside>
 
-      <div class="grid" id="grid"></div>
+  <main class="main-content">
+    <div class="header">
+      <div class="header-text">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <div>
+          <h1 id="pageTitle">All Systems</h1>
+          <p id="pageSubtitle">ภาพรวมระบบและทรัพยากร IT ทั้งหมด</p>
+        </div>
+      </div>
+      <div class="search-box">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" class="search-input" id="searchInput" placeholder="ค้นหาระบบ..." oninput="handleSearch()">
+      </div>
+    </div>
 
-      <footer class="page-footer">เพิ่ม แก้ไข หรือลบระบบและหมวดหมู่ได้จากหน้านี้ · ข้อมูลซิงก์กับฐานข้อมูลกลาง</footer>
+    <div class="summary-grid">
+      <div class="summary-card" style="border-left-color: var(--primary);">
+        <div class="summary-icon" style="color: var(--primary); background: #eff6ff;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+        </div>
+        <div class="summary-info"><h3 id="totalApps">0</h3><span>Total Systems</span></div>
+      </div>
+      <div class="summary-card" style="border-left-color: var(--success);">
+        <div class="summary-icon" style="color: var(--success); background: #ecfdf5;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </div>
+        <div class="summary-info"><h3 id="totalOnline">0</h3><span>Online Systems</span></div>
+      </div>
+      <div class="summary-card" style="border-left-color: var(--danger);">
+        <div class="summary-icon" style="color: var(--danger); background: #fef2f2;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+        </div>
+        <div class="summary-info"><h3 id="totalOffline">0</h3><span>Offline Systems</span></div>
+      </div>
+    </div>
+
+    <div id="adminControls" style="display: none;">
+      <button class="add-btn" onclick="openAppModal(null, currentCategory === 'all' ? '' : currentCategory)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Add System
+      </button>
+      <button class="add-btn" style="background: #475569; margin-left: 10px;" onclick="openCategoryModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Add Category
+      </button>
+    </div>
+
+    <div class="systems-grid" id="dashboardGrid"></div>
+  </main>
+
+  <div class="modal-overlay" id="appModal">
+    <div class="modal">
+      <h3><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg><span id="appModalTitle">Add System</span></h3>
+      <input type="hidden" id="appId">
+      <div class="form-group"><label>System Name</label><input type="text" class="form-control" id="appName" placeholder="เช่น Firewall-01"></div>
+      <div class="form-group"><label>Access URL</label><input type="text" class="form-control" id="appUrl" placeholder="192.168.1.1 หรือ https://..."></div>
+      <div class="form-group"><label>Category</label><select class="form-control" id="appCategoryId"></select></div>
+      <div class="form-group"><label>Priority Level</label><select class="form-control" id="appColor"><option value="">Normal</option><option value="blue">Important</option><option value="red">Critical</option><option value="green">Active</option><option value="orange">Warning</option></select></div>
+      <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('appModal')">Cancel</button><button class="btn btn-primary" onclick="saveApp()">Save</button></div>
     </div>
   </div>
 
-</div>
+  <div class="modal-overlay" id="categoryModal">
+    <div class="modal">
+      <h3><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg><span id="catModalTitle">Add Category</span></h3>
+      <input type="hidden" id="categoryId">
+      <div class="form-group"><label>Category Name</label><input type="text" class="form-control" id="categoryName" placeholder="เช่น Network"></div>
+      <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal('categoryModal')">Cancel</button><button class="btn btn-primary" onclick="saveCategory()">Save</button></div>
+    </div>
+  </div>
 
-<!-- Modal: Link -->
-<div class="overlay" id="overlay">
-  <div class="modal">
-    <h2 id="modal-title">เพิ่มระบบใหม่</h2>
-    <input type="hidden" id="edit-id">
-    <div class="field">
-      <label for="f-name">ชื่อระบบ</label>
-      <input type="text" id="f-name" placeholder="เช่น ระบบแจ้งซ่อม IT">
-    </div>
-    <div class="field">
-      <label for="f-url">ลิงก์ (URL)</label>
-      <input type="text" id="f-url" placeholder="https://...">
-    </div>
-    <div class="field">
-      <label for="f-category">หมวดหมู่</label>
-      <select id="f-category"></select>
-    </div>
-    <div class="field">
-      <label>สี</label>
-      <div class="swatches" id="swatches"></div>
-    </div>
-    <div class="field">
-      <label for="f-pass">รหัสผ่านแก้ไข</label>
-      <input type="password" id="f-pass" placeholder="รหัสผ่านสำหรับเพิ่ม/แก้ไข/ลบ">
-    </div>
-    <div class="field-error" id="modal-error" style="display:none; color:var(--err); font-family:'IBM Plex Mono', monospace; font-size:12px; margin-top:-8px;"></div>
-    <div class="modal-actions">
-      <button class="btn btn-danger" id="delete-btn" style="display:none;">ลบระบบ</button>
-      <div style="display:flex; gap:8px; margin-left:auto;">
-        <button class="btn btn-ghost" id="cancel-btn">ยกเลิก</button>
-        <button class="btn btn-primary" id="save-btn">บันทึก</button>
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal">
+      <h3><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>Admin Authentication</h3>
+      <div class="form-group"><label>Passcode</label><input type="password" class="form-control" id="passcodeInput" placeholder="กรอกรหัสผ่านแอดมิน" onkeydown="if(event.key==='Enter') verifyAdmin()"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('loginModal')">Cancel</button>
+        <button class="btn btn-primary" id="loginBtn" onclick="verifyAdmin()">Login</button>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Modal: Category -->
-<div class="overlay" id="cat-overlay">
-  <div class="modal">
-    <h2 id="cat-modal-title">เพิ่มหมวดหมู่ใหม่</h2>
-    <input type="hidden" id="cat-edit-id">
-    <div class="field">
-      <label for="f-cat-name">ชื่อหมวดหมู่</label>
-      <input type="text" id="f-cat-name" placeholder="เช่น ระบบภายใน">
-    </div>
-    <div class="field">
-      <label for="f-cat-pass">รหัสผ่านแก้ไข</label>
-      <input type="password" id="f-cat-pass" placeholder="รหัสผ่านสำหรับเพิ่ม/แก้ไข/ลบ">
-    </div>
-    <div class="field-error" id="cat-modal-error" style="display:none; color:var(--err); font-family:'IBM Plex Mono', monospace; font-size:12px; margin-top:-8px;"></div>
-    <div class="modal-actions">
-      <button class="btn btn-danger" id="cat-delete-btn" style="display:none;">ลบหมวดหมู่</button>
-      <div style="display:flex; gap:8px; margin-left:auto;">
-        <button class="btn btn-ghost" id="cat-cancel-btn">ยกเลิก</button>
-        <button class="btn btn-primary" id="cat-save-btn">บันทึก</button>
-      </div>
-    </div>
-  </div>
-</div>
+  <div class="toast" id="toast"></div>
 
-<script>
-  // 🔧 วาง Web App URL จาก Google Apps Script ตรงนี้ (ดูขั้นตอนใน Code.gs)
-  const API_URL = 'https://script.google.com/macros/s/AKfycbw221vgMtPYRDqzc8gspvx9cE_Trzdj43Pwv-e61BQl1ktsCMHD_MXYmQF3z-mUdyk/exec';
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwqmL2WI0z91uI3kYXlTvCpMZmXsNKZAekSAWeklnM-RAtZWYZglpS-3l9_IwN9iGR1/exec'; // 🔴 ใส่ URL ของคุณ
+    let PASSCODE = ''; let isAdmin = false;
+    let state = { apps: [], categories: [] };
+    let searchQuery = '';
+    let currentCategory = 'all';
 
-  const COLORS = ['#36454f','#708090','#5b6fd8','#0f9c8f','#c98a3e','#8a5fb0'];
-  const CACHE_KEY = 'it-console-cache-v2';
-  const UNCATEGORIZED = '__uncategorized__';
-  const ALL = '__all__';
-
-  let apps = [];
-  let categories = [];
-  let selectedColor = COLORS[0];
-  let editingId = null;
-  let editingCategoryId = null;
-  let activeCategory = ALL;
-  let dragSrcId = null;
-
-  function loadCache(){
-    try{
-      const raw = localStorage.getItem(CACHE_KEY);
-      return raw ? JSON.parse(raw) : null;
-    }catch(e){ return null; }
-  }
-  function saveCache(){
-    try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ apps, categories })); }
-    catch(e){ /* ไม่เป็นไร ข้ามได้ */ }
-  }
-
-  const statusDot = document.querySelector('.dot');
-  const statusText = document.getElementById('status-text');
-
-  function setStatus(state, label){
-    statusDot.style.background = state === 'error' ? 'var(--err)' : (state === 'loading' ? 'var(--ink-faint)' : 'var(--slate)');
-    statusText.textContent = label;
-  }
-
-  async function fetchApps(isBackground){
-    if(API_URL.indexOf('PUT_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') !== -1){
-      setStatus('error', 'ยังไม่ได้ตั้งค่า API_URL ในไฟล์ index.html');
-      if(!apps.length) grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">ยังไม่ได้เชื่อมต่อฐานข้อมูลกลาง<br>ใส่ Web App URL ในตัวแปร API_URL ก่อนใช้งาน</div>';
-      return;
-    }
-    if(!isBackground) setStatus('loading', 'กำลังโหลดข้อมูล...');
-    try{
-      const res = await fetch(API_URL);
-      const data = await res.json();
-      if(!data.ok) throw new Error(data.error || 'โหลดข้อมูลไม่สำเร็จ');
-      apps = data.apps || [];
-      categories = (data.categories || []).slice().sort((a,b) => a.order - b.order);
-      saveCache();
-      setStatus('ok', 'ข้อมูลอัปเดตล่าสุด');
-      renderSidebar();
-      render();
-    }catch(err){
-      console.error(err);
-      if(apps.length){
-        setStatus('error', 'อัปเดตข้อมูลล่าสุดไม่สำเร็จ (แสดงข้อมูลที่บันทึกไว้)');
-      }else{
-        setStatus('error', 'โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชอีกครั้ง');
-        grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">เชื่อมต่อฐานข้อมูลไม่สำเร็จ<br>ตรวจสอบอินเทอร์เน็ตหรือลองรีเฟรชหน้านี้</div>';
-      }
-    }
-  }
-
-  async function callApi(params){
-    const body = new URLSearchParams(params);
-    const res = await fetch(API_URL, { method: 'POST', body: body });
-    const data = await res.json();
-    if(!data.ok) throw new Error(data.error || 'การบันทึกล้มเหลว');
-    return data;
-  }
-
-  const navList = document.getElementById('nav-list');
-  const pageTitle = document.getElementById('page-title');
-  const pageSub = document.getElementById('page-sub');
-  const grid = document.getElementById('grid');
-  const searchInput = document.getElementById('search');
-  const countLabel = document.getElementById('count-label');
-
-  const overlay = document.getElementById('overlay');
-  const modalTitle = document.getElementById('modal-title');
-  const nameInput = document.getElementById('f-name');
-  const urlInput = document.getElementById('f-url');
-  const categorySelect = document.getElementById('f-category');
-  const swatchesEl = document.getElementById('swatches');
-  const deleteBtn = document.getElementById('delete-btn');
-  const passInput = document.getElementById('f-pass');
-  const modalError = document.getElementById('modal-error');
-  const saveBtn = document.getElementById('save-btn');
-
-  const catOverlay = document.getElementById('cat-overlay');
-  const catModalTitle = document.getElementById('cat-modal-title');
-  const catNameInput = document.getElementById('f-cat-name');
-  const catPassInput = document.getElementById('f-cat-pass');
-  const catModalError = document.getElementById('cat-modal-error');
-  const catSaveBtn = document.getElementById('cat-save-btn');
-  const catDeleteBtn = document.getElementById('cat-delete-btn');
-
-  function initials(name){
-    const clean = (name || '').trim();
-    if(!clean) return '?';
-    const parts = clean.split(/\s+/);
-    if(parts.length === 1) return clean.slice(0,2).toUpperCase();
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  }
-
-  function hostLabel(url){
-    try{
-      const u = new URL(url);
-      return u.hostname.replace('www.','');
-    }catch(e){
-      return url;
-    }
-  }
-
-  function categoryName(id){
-    if(!id) return 'ไม่ได้จัดหมวดหมู่';
-    const c = categories.find(c => c.id === id);
-    return c ? c.name : 'ไม่ได้จัดหมวดหมู่';
-  }
-
-  function countFor(catId){
-    if(catId === ALL) return apps.length;
-    if(catId === UNCATEGORIZED) return apps.filter(a => !a.categoryId || !categories.some(c => c.id === a.categoryId)).length;
-    return apps.filter(a => a.categoryId === catId).length;
-  }
-
-  // ---------- Sidebar ----------
-  function renderSidebar(){
-    navList.innerHTML = '';
-
-    navList.appendChild(makeNavItem({ id: ALL, name: 'ทั้งหมด', icon: '＃' }, false));
-
-    categories.forEach(cat => {
-      navList.appendChild(makeNavItem(cat, true));
-    });
-
-    navList.appendChild(makeNavItem({ id: UNCATEGORIZED, name: 'ไม่ได้จัดหมวดหมู่', icon: '·' }, false));
-  }
-
-  function makeNavItem(cat, editable){
-    const li = document.createElement('li');
-    li.className = 'nav-item cat-item' + (activeCategory === cat.id ? ' active' : '');
-    li.dataset.id = cat.id;
-
-    const iconChar = cat.icon || initials(cat.name);
-    li.innerHTML = `
-      <span class="nav-icon">${escapeHtml(iconChar)}</span>
-      <span class="nav-label">${escapeHtml(cat.name)}</span>
-      <span class="nav-count">${countFor(cat.id)}</span>
-      ${editable ? `<span class="cat-actions">
-        <button class="cat-action-btn" type="button" data-act="edit" title="แก้ไขหมวดหมู่">✎</button>
-      </span>` : ''}
-    `;
-
-    li.addEventListener('click', (e) => {
-      if(e.target.closest('.cat-action-btn')) return;
-      activeCategory = cat.id;
-      renderSidebar();
-      render();
-    });
-
-    if(editable){
-      li.querySelector('[data-act="edit"]').addEventListener('click', (e) => {
-        e.stopPropagation();
-        openCategoryModal(cat);
-      });
-      li.setAttribute('draggable', 'true');
-      li.addEventListener('dragstart', (e) => {
-        dragSrcId = cat.id;
-        li.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
-      });
-      li.addEventListener('dragend', () => {
-        li.classList.remove('dragging');
-        document.querySelectorAll('.cat-item').forEach(el => el.classList.remove('drag-over'));
-      });
-      li.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        li.classList.add('drag-over');
-      });
-      li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
-      li.addEventListener('drop', (e) => {
-        e.preventDefault();
-        li.classList.remove('drag-over');
-        if(!dragSrcId || dragSrcId === cat.id) return;
-        reorderCategories(dragSrcId, cat.id);
-      });
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('active');
+      document.getElementById('overlay').style.display = document.getElementById('sidebar').classList.contains('active') ? 'block' : 'none';
     }
 
-    return li;
-  }
-
-  async function reorderCategories(srcId, targetId){
-    const srcIdx = categories.findIndex(c => c.id === srcId);
-    const targetIdx = categories.findIndex(c => c.id === targetId);
-    if(srcIdx === -1 || targetIdx === -1) return;
-    const reordered = categories.slice();
-    const [moved] = reordered.splice(srcIdx, 1);
-    reordered.splice(targetIdx, 0, moved);
-    categories = reordered;
-    renderSidebar();
-    try{
-      await callApi({ action:'reorderCategories', ids: reordered.map(c => c.id).join(','), passcode: lastKnownPasscode() });
-    }catch(err){
-      // การจัดลำดับต้องใช้รหัสผ่าน — ถ้าไม่มีให้ขอตอนนี้
-      const passcode = prompt('กรุณากรอกรหัสผ่านเพื่อบันทึกลำดับหมวดหมู่ใหม่');
-      if(passcode){
-        try{
-          await callApi({ action:'reorderCategories', ids: reordered.map(c => c.id).join(','), passcode });
-        }catch(e2){
-          alert(e2.message);
-          await fetchApps();
+    async function fetchData() {
+      renderSkeletons(); 
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        if(data.ok) {
+          state.apps = data.apps;
+          state.categories = data.categories;
+          renderSidebar();
+          renderMainContent();
         }
-      }else{
-        await fetchApps();
-      }
-    }
-  }
-
-  let _rememberedPasscode = '';
-  function lastKnownPasscode(){ return _rememberedPasscode; }
-
-  // ---------- Grid ----------
-  function render(){
-    const q = searchInput.value.trim().toLowerCase();
-
-    let base = apps;
-    if(activeCategory === UNCATEGORIZED){
-      base = apps.filter(a => !a.categoryId || !categories.some(c => c.id === a.categoryId));
-    }else if(activeCategory !== ALL){
-      base = apps.filter(a => a.categoryId === activeCategory);
+      } catch (err) { showToast('โหลดข้อมูลไม่สำเร็จ', true); }
     }
 
-    const filtered = base.filter(a => a.name.toLowerCase().includes(q) || a.url.toLowerCase().includes(q));
-
-    if(activeCategory === ALL){
-      pageTitle.textContent = 'ทั้งหมด';
-      pageSub.textContent = 'จุดเข้าถึงเว็บแอปพลิเคชันทั้งหมด';
-    }else if(activeCategory === UNCATEGORIZED){
-      pageTitle.textContent = 'ไม่ได้จัดหมวดหมู่';
-      pageSub.textContent = 'ระบบที่ยังไม่ถูกจัดเข้าหมวดหมู่';
-    }else{
-      const cat = categories.find(c => c.id === activeCategory);
-      pageTitle.textContent = cat ? cat.name : 'หมวดหมู่';
-      pageSub.textContent = 'ระบบในหมวดหมู่นี้';
+    async function postData(params) {
+      try {
+        const url = new URL(API_URL);
+        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+        const res = await fetch(url, { method: 'POST' });
+        const data = await res.json();
+        if(data.ok) { showToast('สำเร็จ!'); fetchData(); return true; } 
+        else { showToast(data.error || 'เกิดข้อผิดพลาด', true); return false; }
+      } catch (err) { showToast('เชื่อมต่อ API ไม่ได้', true); return false; }
     }
 
-    countLabel.textContent = base.length + ' ระบบ';
-    grid.innerHTML = '';
-
-    if(base.length && !filtered.length){
-      grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">ไม่พบระบบที่ค้นหา</div>';
+    function handleSearch() { searchQuery = document.getElementById('searchInput').value.toLowerCase(); renderMainContent(); }
+    function selectCategory(catId) { 
+      currentCategory = catId; 
+      renderSidebar(); 
+      renderMainContent();
+      if(window.innerWidth <= 768) toggleSidebar();
     }
 
-    filtered.forEach(app => {
-      const card = document.createElement('a');
-      card.className = 'card';
-      card.href = app.url;
-      card.target = '_blank';
-      card.rel = 'noopener noreferrer';
-      card.innerHTML = `
-        <div class="card-top">
-          <div class="icon" style="--icon-bg:${app.color}1a; --icon-color:${app.color};">${initials(app.name)}</div>
-          <button class="edit-btn" type="button" title="แก้ไข">✎</button>
-        </div>
-        <div>
-          <div class="card-title">${escapeHtml(app.name)}</div>
-          <div class="card-url">${escapeHtml(hostLabel(app.url))}</div>
-          ${activeCategory === ALL ? `<div class="card-cat-chip">${escapeHtml(categoryName(app.categoryId))}</div>` : ''}
-        </div>
-      `;
-      card.querySelector('.edit-btn').addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        openModal(app);
+    function renderSidebar() {
+      const list = document.getElementById('categoryList');
+      let html = '';
+      state.categories.forEach(cat => {
+        const active = currentCategory === cat.id ? 'active' : '';
+        html += `
+          <div class="nav-item ${active}" onclick="selectCategory('${cat.id}')">
+            <div class="nav-item-left">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              ${cat.name}
+            </div>
+            ${isAdmin ? `
+            <div class="nav-cat-actions">
+              <button onclick="event.stopPropagation(); openCategoryModal('${cat.id}')" title="Edit"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+              <button onclick="event.stopPropagation(); deleteCategory('${cat.id}')" title="Delete"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+            </div>` : ''}
+          </div>`;
       });
-      grid.appendChild(card);
-    });
+      list.innerHTML = html;
 
-    const addCard = document.createElement('button');
-    addCard.className = 'card add-card';
-    addCard.type = 'button';
-    addCard.innerHTML = '<span class="add-plus">+</span><span class="add-label">เพิ่มระบบ</span>';
-    addCard.addEventListener('click', () => openModal(null));
-    grid.appendChild(addCard);
-  }
+      if(isAdmin) {
+        Sortable.create(list, {
+          handle: '.nav-item-left', animation: 150, ghostClass: 'sortable-ghost',
+          onEnd: function (evt) {
+            const newOrder = [];
+            list.querySelectorAll('.nav-item').forEach(item => {
+              const name = item.querySelector('.nav-item-left').textContent.trim();
+              const cat = state.categories.find(c => c.name === name);
+              if(cat) newOrder.push(cat.id);
+            });
+            if(newOrder.length > 0) postData({ action: 'reorderCategories', ids: newOrder.join(','), passcode: PASSCODE });
+          }
+        });
+      }
+    }
 
-  function escapeHtml(str){
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
+    function renderSkeletons() {
+      const grid = document.getElementById('dashboardGrid');
+      let html = '';
+      for(let i=0; i<6; i++) {
+        html += `
+          <div class="skeleton-card">
+            <div class="skeleton-header">
+              <div class="skeleton-img shimmer"></div>
+              <div style="flex-grow:1;">
+                <div class="skeleton-line shimmer" style="width: 60%;"></div>
+                <div class="skeleton-line shimmer" style="width: 30%; height: 8px;"></div>
+              </div>
+            </div>
+            <div class="skeleton-body">
+              <div class="skeleton-line shimmer" style="width: 60px; height: 30px; margin: 0;"></div>
+            </div>
+          </div>`;
+      }
+      grid.innerHTML = html;
+    }
 
-  function buildSwatches(){
-    swatchesEl.innerHTML = '';
-    COLORS.forEach(c => {
-      const s = document.createElement('div');
-      s.className = 'swatch';
-      s.style.background = c;
-      if(c === selectedColor) s.classList.add('active');
-      s.addEventListener('click', () => {
-        selectedColor = c;
-        buildSwatches();
+    function renderMainContent() {
+      const grid = document.getElementById('dashboardGrid');
+      let appsToShow = [];
+      if (currentCategory === 'all') {
+        appsToShow = state.apps;
+        document.getElementById('pageTitle').innerText = 'All Systems';
+        document.getElementById('pageSubtitle').innerText = 'ภาพรวมระบบและทรัพยากร IT ทั้งหมด';
+      } else {
+        appsToShow = state.apps.filter(a => a.categoryId === currentCategory);
+        const cat = state.categories.find(c => c.id === currentCategory);
+        document.getElementById('pageTitle').innerText = cat ? cat.name : 'Category';
+        document.getElementById('pageSubtitle').innerText = `ระบบในหมวดหมู่ ${cat ? cat.name : ''}`;
+      }
+
+      appsToShow.forEach(app => app.status = 'checking');
+      updateSummaryCards();
+
+      if (searchQuery) {
+        appsToShow = appsToShow.filter(a => a.name.toLowerCase().includes(searchQuery) || (a.url && a.url.toLowerCase().includes(searchQuery)));
+      }
+
+      let html = '';
+      if (appsToShow.length === 0) {
+        html = `
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+            <h3>ไม่พบระบบในหมวดหมู่นี้</h3>
+            <p>คุณสามารถเพิ่มระบบใหม่ได้ทันที</p>
+            ${isAdmin ? `<button class="btn btn-primary" onclick="openAppModal(null, currentCategory === 'all' ? '' : currentCategory)">Add System</button>` : ''}
+          </div>`;
+      } else {
+        appsToShow.forEach(app => {
+          const colorStyle = getColorStyle(app.color);
+          html += `
+            <div class="system-card" style="border-top: 3px solid ${colorStyle.border === 'transparent' ? 'var(--border)' : colorStyle.border};">
+              <div class="card-header">
+                <div class="favicon">${getFavicon(app.url)}</div>
+                <div class="card-title">
+                  <span class="system-name">${app.name}</span>
+                  <div class="status-indicator">
+                    <span class="status-dot checking" id="status-dot-${app.id}"></span>
+                    <span id="status-text-${app.id}">Checking...</span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
+                ${app.color ? `<span class="priority-tag" style="background:${colorStyle.bg}; color:${colorStyle.text};">${colorStyle.label}</span>` : '<span></span>'}
+                <a href="${app.url}" target="_blank" class="btn-link">
+                  Access <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                </a>
+              </div>
+              <div class="card-footer ${isAdmin ? 'visible' : ''}">
+                <button class="btn-icon" onclick="openAppModal('${app.id}')" title="Edit"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                <button class="btn-icon delete" onclick="deleteApp('${app.id}')" title="Delete"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+              </div>
+            </div>`;
+        });
+      }
+      grid.innerHTML = html;
+      document.getElementById('adminControls').style.display = isAdmin ? 'block' : 'none';
+
+      performHealthChecksBatched(appsToShow);
+    }
+
+    // ====== ฟังก์ชันตรวจสอบสถานะแบบ Local (Image Ping) ======
+    async function performHealthChecksBatched(apps) {
+      const chunkSize = 5; 
+      for (let i = 0; i < apps.length; i += chunkSize) {
+        const chunk = apps.slice(i, i + chunkSize);
+        await Promise.all(chunk.map(app => checkStatus(app)));
+      }
+      updateSummaryCards();
+    }
+
+    async function checkStatus(app) {
+      const cacheKey = `health_${app.id}`;
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        try {
+          const data = JSON.parse(cached);
+          if (Date.now() - data.t < 120000) {
+            updateStatusUI(app.id, data.s);
+            const stateApp = state.apps.find(a => a.id === app.id);
+            if (stateApp) stateApp.status = data.s;
+            return;
+          }
+        } catch(e) {}
+      }
+
+      const status = await checkLocalStatus(app.url);
+      localStorage.setItem(cacheKey, JSON.stringify({ s: status, t: Date.now() }));
+      updateStatusUI(app.id, status);
+      const stateApp = state.apps.find(a => a.id === app.id);
+      if (stateApp) stateApp.status = status;
+    }
+
+    async function checkLocalStatus(url) {
+      if (!url) return 'offline';
+      return new Promise((resolve) => {
+        const img = new Image();
+        let resolved = false;
+        
+        const timeoutId = setTimeout(() => {
+          if (!resolved) { resolved = true; img.src = ''; resolve('offline'); }
+        }, 4000);
+
+        img.onload = img.onerror = () => {
+          if (!resolved) {
+            clearTimeout(timeoutId);
+            resolved = true;
+            resolve('online');
+          }
+        };
+        
+        img.src = url + (url.includes('?') ? '&' : '?') + '_ping=' + Date.now();
       });
-      swatchesEl.appendChild(s);
-    });
-  }
-
-  function buildCategoryOptions(selectedId){
-    categorySelect.innerHTML = '';
-    const noneOpt = document.createElement('option');
-    noneOpt.value = '';
-    noneOpt.textContent = 'ไม่ได้จัดหมวดหมู่';
-    categorySelect.appendChild(noneOpt);
-    categories.forEach(cat => {
-      const opt = document.createElement('option');
-      opt.value = cat.id;
-      opt.textContent = cat.name;
-      categorySelect.appendChild(opt);
-    });
-    categorySelect.value = selectedId || '';
-  }
-
-  // ---------- Link modal ----------
-  function openModal(app){
-    editingId = app ? app.id : null;
-    modalTitle.textContent = app ? 'แก้ไขระบบ' : 'เพิ่มระบบใหม่';
-    nameInput.value = app ? app.name : '';
-    urlInput.value = app ? app.url : '';
-    passInput.value = '';
-    modalError.style.display = 'none';
-    nameInput.style.borderColor = 'var(--line)';
-    urlInput.style.borderColor = 'var(--line)';
-    selectedColor = app ? app.color : COLORS[apps.length % COLORS.length];
-    deleteBtn.style.display = app ? 'inline-block' : 'none';
-    buildSwatches();
-
-    const defaultCat = (activeCategory !== ALL && activeCategory !== UNCATEGORIZED) ? activeCategory : '';
-    buildCategoryOptions(app ? app.categoryId : defaultCat);
-
-    overlay.classList.add('open');
-    setTimeout(() => nameInput.focus(), 50);
-  }
-
-  function closeModal(){
-    overlay.classList.remove('open');
-  }
-
-  document.getElementById('cancel-btn').addEventListener('click', closeModal);
-  overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(); });
-
-  saveBtn.addEventListener('click', async () => {
-    const name = nameInput.value.trim();
-    let url = urlInput.value.trim();
-    const passcode = passInput.value;
-    const categoryId = categorySelect.value;
-    modalError.style.display = 'none';
-
-    if(!name || !url){
-      nameInput.style.borderColor = name ? 'var(--line)' : 'var(--err)';
-      urlInput.style.borderColor = url ? 'var(--line)' : 'var(--err)';
-      return;
-    }
-    if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
-    if(!passcode){
-      modalError.textContent = 'กรุณากรอกรหัสผ่าน';
-      modalError.style.display = 'block';
-      return;
     }
 
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'กำลังบันทึก...';
-    try{
-      if(editingId){
-        await callApi({ action:'update', id:editingId, name, url, color:selectedColor, categoryId, passcode });
-      }else{
-        await callApi({ action:'add', name, url, color:selectedColor, categoryId, passcode });
+    function updateStatusUI(appId, status) {
+      const dot = document.getElementById(`status-dot-${appId}`);
+      const text = document.getElementById(`status-text-${appId}`);
+      if (dot) {
+        dot.classList.remove('checking', 'online', 'offline', 'unknown');
+        dot.classList.add(status);
+        if (status === 'online') {
+          dot.innerHTML = `<svg class="status-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+        } else if (status === 'offline') {
+          dot.innerHTML = `<svg class="status-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+        } else {
+          dot.innerHTML = '';
+        }
       }
-      _rememberedPasscode = passcode;
-      await fetchApps();
-      closeModal();
-    }catch(err){
-      modalError.textContent = err.message;
-      modalError.style.display = 'block';
-    }finally{
-      saveBtn.disabled = false;
-      saveBtn.textContent = 'บันทึก';
-    }
-  });
-
-  deleteBtn.addEventListener('click', async () => {
-    const passcode = passInput.value;
-    modalError.style.display = 'none';
-    if(!passcode){
-      modalError.textContent = 'กรุณากรอกรหัสผ่านเพื่อลบ';
-      modalError.style.display = 'block';
-      return;
-    }
-    deleteBtn.disabled = true;
-    try{
-      await callApi({ action:'delete', id:editingId, passcode });
-      _rememberedPasscode = passcode;
-      await fetchApps();
-      closeModal();
-    }catch(err){
-      modalError.textContent = err.message;
-      modalError.style.display = 'block';
-    }finally{
-      deleteBtn.disabled = false;
-    }
-  });
-
-  // ---------- Category modal ----------
-  document.getElementById('add-cat-btn').addEventListener('click', () => openCategoryModal(null));
-
-  function openCategoryModal(cat){
-    editingCategoryId = cat ? cat.id : null;
-    catModalTitle.textContent = cat ? 'แก้ไขหมวดหมู่' : 'เพิ่มหมวดหมู่ใหม่';
-    catNameInput.value = cat ? cat.name : '';
-    catPassInput.value = '';
-    catModalError.style.display = 'none';
-    catNameInput.style.borderColor = 'var(--line)';
-    catDeleteBtn.style.display = cat ? 'inline-block' : 'none';
-    catOverlay.classList.add('open');
-    setTimeout(() => catNameInput.focus(), 50);
-  }
-
-  function closeCategoryModal(){
-    catOverlay.classList.remove('open');
-  }
-
-  document.getElementById('cat-cancel-btn').addEventListener('click', closeCategoryModal);
-  catOverlay.addEventListener('click', (e) => { if(e.target === catOverlay) closeCategoryModal(); });
-
-  catSaveBtn.addEventListener('click', async () => {
-    const name = catNameInput.value.trim();
-    const passcode = catPassInput.value;
-    catModalError.style.display = 'none';
-
-    if(!name){
-      catNameInput.style.borderColor = 'var(--err)';
-      return;
-    }
-    if(!passcode){
-      catModalError.textContent = 'กรุณากรอกรหัสผ่าน';
-      catModalError.style.display = 'block';
-      return;
-    }
-
-    catSaveBtn.disabled = true;
-    catSaveBtn.textContent = 'กำลังบันทึก...';
-    try{
-      if(editingCategoryId){
-        await callApi({ action:'updateCategory', id:editingCategoryId, name, passcode });
-      }else{
-        await callApi({ action:'addCategory', name, passcode });
+      if (text) {
+        text.innerText = status === 'online' ? 'Online' : (status === 'offline' ? 'Offline' : 'Unknown');
       }
-      _rememberedPasscode = passcode;
-      await fetchApps();
-      closeCategoryModal();
-    }catch(err){
-      catModalError.textContent = err.message;
-      catModalError.style.display = 'block';
-    }finally{
-      catSaveBtn.disabled = false;
-      catSaveBtn.textContent = 'บันทึก';
     }
-  });
 
-  catDeleteBtn.addEventListener('click', async () => {
-    const passcode = catPassInput.value;
-    catModalError.style.display = 'none';
-    if(!passcode){
-      catModalError.textContent = 'กรุณากรอกรหัสผ่านเพื่อลบ';
-      catModalError.style.display = 'block';
-      return;
+    function updateSummaryCards() {
+      document.getElementById('totalApps').innerText = state.apps.length;
+      document.getElementById('totalOnline').innerText = state.apps.filter(a => a.status === 'online').length;
+      document.getElementById('totalOffline').innerText = state.apps.filter(a => a.status === 'offline' || a.status === 'checking').length;
     }
-    if(!confirm('ลบหมวดหมู่นี้? ระบบที่อยู่ในหมวดจะถูกย้ายไปที่ "ไม่ได้จัดหมวดหมู่"')) return;
-    catDeleteBtn.disabled = true;
-    try{
-      await callApi({ action:'deleteCategory', id:editingCategoryId, passcode });
-      _rememberedPasscode = passcode;
-      if(activeCategory === editingCategoryId) activeCategory = ALL;
-      await fetchApps();
-      closeCategoryModal();
-    }catch(err){
-      catModalError.textContent = err.message;
-      catModalError.style.display = 'block';
-    }finally{
-      catDeleteBtn.disabled = false;
+
+    // --- Utilities & Handlers ---
+    function getFavicon(url) {
+      try {
+        if (!url) throw new Error("No URL");
+        let formattedUrl = url;
+        if (!/^https?:\/\//i.test(url)) formattedUrl = 'http://' + url;
+        const domain = new URL(formattedUrl).hostname;
+        return `<img src="https://www.google.com/s2/favicons?domain=${domain}&sz=32" alt="icon" onerror="this.onerror=null;this.parentNode.innerHTML='<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;16&quot; height=&quot;16&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;#94a3b8&quot; stroke-width=&quot;2&quot;><circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;10&quot;/></svg>';">`;
+      } catch(e) {
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>`;
+      }
     }
-  });
 
-  searchInput.addEventListener('input', render);
+    function getColorStyle(color) {
+      switch(color) {
+        case 'red': return { border: '#ef4444', bg: '#fee2e2', text: '#b91c1c', label: 'Critical' };
+        case 'blue': return { border: '#3b82f6', bg: '#dbeafe', text: '#1d4ed8', label: 'Important' };
+        case 'green': return { border: '#10b981', bg: '#d1fae5', text: '#047857', label: 'Active' };
+        case 'orange': return { border: '#f59e0b', bg: '#fef3c7', text: '#b45309', label: 'Warning' };
+        default: return { border: 'transparent', bg: 'transparent', text: 'transparent', label: '' };
+      }
+    }
 
-  document.addEventListener('keydown', (e) => {
-    if(e.key === 'Escape'){ closeModal(); closeCategoryModal(); }
-  });
+    function toggleAdminLogin() {
+      if(isAdmin) {
+        isAdmin = false; PASSCODE = '';
+        document.getElementById('btnAdmin').classList.remove('active');
+        document.getElementById('adminBtnText').innerText = 'Admin Login';
+        renderSidebar(); renderMainContent();
+      } else { 
+        document.getElementById('passcodeInput').value = ''; 
+        document.getElementById('loginModal').classList.add('active'); 
+      }
+    }
 
-  const cached = loadCache();
-  if(cached && cached.apps && cached.apps.length){
-    apps = cached.apps;
-    categories = (cached.categories || []).slice().sort((a,b) => a.order - b.order);
-    renderSidebar();
-    render();
-    setStatus('loading', 'กำลังอัปเดตข้อมูลล่าสุด...');
-    fetchApps(true);
-  }else{
-    fetchApps(false);
-  }
-  setInterval(() => fetchApps(true), 30000); // ดึงข้อมูลใหม่ทุก 30 วินาที ให้เห็นการเปลี่ยนแปลงจากคนอื่น
-</script>
+    // แก้ไขฟังก์ชัน Login ให้รองรับอักขระพิเศษ
+    function verifyAdmin() {
+      const loginBtn = document.getElementById('loginBtn');
+      const originalText = loginBtn.innerText;
+      
+      loginBtn.innerHTML = `<div class="spinner"></div> กำลังตรวจสอบ...`;
+      loginBtn.disabled = true;
 
+      PASSCODE = document.getElementById('passcodeInput').value;
+      
+      const url = new URL(API_URL);
+      url.searchParams.append('action', 'verify');
+      url.searchParams.append('passcode', PASSCODE); // เอา encodeURIComponent ออกแล้วครับ
+      
+      fetch(url, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if(!data.ok || data.error === 'รหัสผ่านไม่ถูกต้อง') {
+            showToast('รหัสผ่านไม่ถูกต้อง', true);
+            PASSCODE = '';
+          } else {
+            closeModal('loginModal');
+            isAdmin = true;
+            document.getElementById('btnAdmin').classList.add('active');
+            document.getElementById('adminBtnText').innerText = 'Logout Admin';
+            renderSidebar();
+            renderMainContent();
+            showToast('เข้าสู่ระบบแอดมินสำเร็จ');
+          }
+        })
+        .catch(err => {
+          showToast('เชื่อมต่อ API ไม่ได้', true);
+          PASSCODE = '';
+        })
+        .finally(() => {
+          loginBtn.innerText = originalText;
+          loginBtn.disabled = false;
+        });
+    }
+
+    function openAppModal(appId = null, defaultCatId = '') {
+      const select = document.getElementById('appCategoryId');
+      select.innerHTML = state.categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('') + `<option value="">ไม่ได้จัดหมวดหมู่</option>`;
+      if(appId) {
+        const app = state.apps.find(a => a.id === appId);
+        document.getElementById('appModalTitle').innerText = 'Edit System';
+        document.getElementById('appId').value = app.id;
+        document.getElementById('appName').value = app.name;
+        document.getElementById('appUrl').value = app.url;
+        document.getElementById('appColor').value = app.color || '';
+        select.value = app.categoryId;
+      } else {
+        document.getElementById('appModalTitle').innerText = 'Add System';
+        document.getElementById('appId').value = '';
+        document.getElementById('appName').value = '';
+        document.getElementById('appUrl').value = '';
+        document.getElementById('appColor').value = '';
+        select.value = defaultCatId;
+      }
+      document.getElementById('appModal').classList.add('active');
+    }
+
+    function openCategoryModal(catId = null) {
+      if(catId) {
+        const cat = state.categories.find(c => c.id === catId);
+        document.getElementById('catModalTitle').innerText = 'Edit Category';
+        document.getElementById('categoryId').value = cat.id;
+        document.getElementById('categoryName').value = cat.name;
+      } else {
+        document.getElementById('catModalTitle').innerText = 'Add Category';
+        document.getElementById('categoryId').value = '';
+        document.getElementById('categoryName').value = '';
+      }
+      document.getElementById('categoryModal').classList.add('active');
+    }
+
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+    async function saveApp() {
+      const id = document.getElementById('appId').value;
+      let urlVal = document.getElementById('appUrl').value.trim();
+      
+      if (urlVal && !/^https?:\/\//i.test(urlVal)) {
+        urlVal = 'http://' + urlVal;
+      }
+
+      const params = { 
+        name: document.getElementById('appName').value, 
+        url: urlVal, 
+        color: document.getElementById('appColor').value, 
+        categoryId: document.getElementById('appCategoryId').value, 
+        passcode: PASSCODE 
+      };
+      
+      if(!params.name || !params.url) { showToast('กรุณากรอกข้อมูลให้ครบ', true); return; }
+      if(id) { params.action = 'update'; params.id = id; } else { params.action = 'add'; }
+      
+      if(await postData(params)) {
+        if(id) localStorage.removeItem(`health_${id}`);
+        closeModal('appModal');
+      }
+    }
+
+    async function saveCategory() {
+      const id = document.getElementById('categoryId').value;
+      const params = { name: document.getElementById('categoryName').value, passcode: PASSCODE };
+      if(!params.name) { showToast('กรุณากรอกชื่อหมวดหมู่', true); return; }
+      if(id) { params.action = 'updateCategory'; params.id = id; } else { params.action = 'addCategory'; }
+      if(await postData(params)) closeModal('categoryModal');
+    }
+
+    async function deleteApp(id) { 
+      if(confirm('ต้องการลบระบบนี้ใช่หรือไม่?')) {
+        localStorage.removeItem(`health_${id}`); 
+        await postData({ action: 'delete', id: id, passcode: PASSCODE }); 
+      } 
+    }
+    
+    async function deleteCategory(id) { if(confirm('ต้องการลบหมวดหมู่นี้ใช่หรือไม่?')) await postData({ action: 'deleteCategory', id: id, passcode: PASSCODE }); }
+
+    function showToast(msg, isError = false) {
+      const t = document.getElementById('toast');
+      t.innerText = msg; t.className = 'toast show' + (isError ? ' error' : '');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    window.onload = fetchData;
+  </script>
 </body>
 </html>

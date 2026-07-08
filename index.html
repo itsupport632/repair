@@ -8,21 +8,40 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+  /* ============ Modern Minimalist theme tokens ============ */
   :root{
-    --bg:#f7f8f9;
+    --charcoal:#36454f;
+    --charcoal-dark:#2a343c;
+    --charcoal-darker:#212930;
+    --slate:#708090;
+    --light-gray:#d3d3d3;
+    --white:#ffffff;
+
+    --bg:#f7f7f8;
     --panel:#ffffff;
-    --panel-hover:#fbfcfd;
-    --line:#e2e5e8;
-    --line-strong:#d3d3d3;
-    --ink:#36454f;
-    --ink-soft:#708090;
+    --panel-hover:#fbfbfc;
+    --line:#e2e4e6;
+    --line-strong:#cfd2d5;
+
+    --ink:var(--charcoal);
+    --ink-soft:var(--slate);
     --ink-faint:#9aa5ad;
-    --accent:#1f6feb;
-    --accent-soft:#eaf1fe;
-    --cyan:#06b6d4;
-    --cyan-soft:#e3f8fb;
-    --err:#d1453d;
+
+    --accent:var(--charcoal);
+    --accent-soft:#eceeef;
+
+    --side-bg:var(--charcoal);
+    --side-bg-alt:var(--charcoal-dark);
+    --side-ink:#ffffff;
+    --side-ink-soft:rgba(255,255,255,0.56);
+    --side-ink-faint:rgba(255,255,255,0.34);
+    --side-line:rgba(255,255,255,0.10);
+    --side-hover:rgba(255,255,255,0.06);
+    --side-active:rgba(255,255,255,0.14);
+
+    --err:#c0463d;
     --radius:10px;
+    --sidebar-w:252px;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -32,46 +51,185 @@
     font-family:'Inter', sans-serif;
     color:var(--ink);
   }
-  .wrap{
-    max-width:960px;
-    margin:0 auto;
-    padding:56px 32px 90px;
+  a{color:inherit;}
+  button{font:inherit;}
+
+  /* ============ App shell ============ */
+  .shell{
+    display:flex;
+    min-height:100vh;
   }
 
-  /* header */
+  /* ---- Sidebar ---- */
+  .sidebar{
+    width:var(--sidebar-w);
+    flex-shrink:0;
+    background:var(--side-bg);
+    color:var(--side-ink);
+    display:flex;
+    flex-direction:column;
+    padding:22px 14px 18px;
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+  }
+  .side-brand{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    padding:4px 8px 22px;
+  }
+  .side-mark{
+    width:34px; height:34px;
+    border-radius:9px;
+    background:var(--side-hover);
+    border:1px solid var(--side-line);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:13px;
+    flex-shrink:0;
+  }
+  .side-brand h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:14.5px;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .side-brand .sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:var(--side-ink-soft);
+    margin-top:2px;
+  }
+
+  .side-section-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--side-ink-faint);
+    padding:0 10px;
+    margin:14px 0 6px;
+  }
+
+  .nav-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;}
+  .nav-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:8px 10px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:500;
+    color:var(--side-ink-soft);
+    user-select:none;
+    transition:background .12s ease, color .12s ease;
+  }
+  .nav-item:hover{background:var(--side-hover); color:var(--side-ink);}
+  .nav-item.active{background:var(--side-active); color:var(--side-ink);}
+  .nav-icon{
+    width:22px; height:22px;
+    border-radius:6px;
+    background:rgba(255,255,255,0.08);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Space Grotesk', sans-serif;
+    font-size:10.5px;
+    font-weight:600;
+    flex-shrink:0;
+  }
+  .nav-item.active .nav-icon{background:rgba(255,255,255,0.18);}
+  .nav-label{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .nav-count{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:var(--side-ink-faint);
+    flex-shrink:0;
+  }
+  .nav-item.active .nav-count{color:var(--side-ink-soft);}
+
+  .cat-item{position:relative;}
+  .cat-actions{
+    display:none;
+    align-items:center;
+    gap:2px;
+    flex-shrink:0;
+  }
+  .cat-item:hover .cat-actions{display:flex;}
+  .cat-item:hover .nav-count{display:none;}
+  .cat-action-btn{
+    width:20px; height:20px;
+    background:none; border:none;
+    color:var(--side-ink-faint);
+    cursor:pointer;
+    border-radius:5px;
+    font-size:11px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .cat-action-btn:hover{color:var(--side-ink); background:rgba(255,255,255,0.12);}
+  .cat-item[draggable="true"]{cursor:grab;}
+  .cat-item.dragging{opacity:0.4;}
+  .cat-item.drag-over{box-shadow:inset 0 2px 0 rgba(255,255,255,0.5);}
+
+  .add-cat-btn{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:8px 10px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:12.5px;
+    color:var(--side-ink-faint);
+    background:none;
+    border:1px dashed var(--side-line);
+    margin-top:6px;
+    width:100%;
+    text-align:left;
+    transition:color .12s ease, border-color .12s ease;
+  }
+  .add-cat-btn:hover{color:var(--side-ink); border-color:var(--side-ink-soft);}
+
+  .sidebar-footer{
+    margin-top:auto;
+    padding:14px 10px 2px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    color:var(--side-ink-faint);
+    border-top:1px solid var(--side-line);
+  }
+
+  /* ---- Main ---- */
+  .main{
+    flex:1;
+    min-width:0;
+    padding:40px 40px 90px;
+  }
+  .wrap{max-width:980px;}
+
   header{
     display:flex;
     justify-content:space-between;
     align-items:flex-end;
-    margin-bottom:36px;
+    margin-bottom:28px;
     flex-wrap:wrap;
     gap:16px;
-    padding-bottom:24px;
+    padding-bottom:22px;
     border-bottom:1px solid var(--line);
   }
-  .brand{display:flex; align-items:center; gap:14px;}
-  .brand-mark{
-    width:40px; height:40px;
-    border-radius:10px;
-    background:linear-gradient(135deg, var(--accent), var(--cyan));
-    display:flex; align-items:center; justify-content:center;
-    color:#fff; font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:15px;
-    flex-shrink:0;
-    box-shadow:0 6px 16px rgba(31,111,235,0.22);
-  }
-  h1{
+  h2.page-title{
     font-family:'Space Grotesk', sans-serif;
     font-weight:700;
-    font-size:23px;
+    font-size:22px;
     letter-spacing:-0.01em;
     margin:0;
     color:var(--ink);
   }
-  .sub{
+  .page-sub{
     font-family:'IBM Plex Mono', monospace;
     font-size:12px;
     color:var(--ink-soft);
-    margin-top:3px;
+    margin-top:4px;
   }
   .status-line{
     font-family:'IBM Plex Mono', monospace;
@@ -87,12 +245,11 @@
   }
   .dot{
     width:7px; height:7px; border-radius:50%;
-    background:var(--cyan);
-    box-shadow:0 0 0 3px var(--cyan-soft);
+    background:var(--slate);
+    box-shadow:0 0 0 3px var(--accent-soft);
     flex-shrink:0;
   }
 
-  /* toolbar */
   .toolbar{
     display:flex;
     justify-content:space-between;
@@ -121,9 +278,8 @@
     transition:border-color .15s ease, box-shadow .15s ease;
   }
   #search::placeholder{color:var(--ink-faint);}
-  #search:focus{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);}
+  #search:focus{border-color:var(--charcoal); box-shadow:0 0 0 3px var(--accent-soft);}
 
-  /* grid */
   .grid{
     display:grid;
     grid-template-columns:repeat(auto-fill, minmax(224px, 1fr));
@@ -146,11 +302,11 @@
   }
   .card:hover{
     transform:translateY(-2px);
-    box-shadow:0 12px 28px rgba(31,111,235,0.10);
-    border-color:#c9dcfb;
+    box-shadow:0 12px 26px rgba(54,69,79,0.10);
+    border-color:var(--line-strong);
   }
   .card:focus-visible{
-    outline:2px solid var(--accent);
+    outline:2px solid var(--charcoal);
     outline-offset:2px;
   }
   .card-top{
@@ -166,7 +322,7 @@
     font-weight:600;
     font-size:14px;
     background:var(--icon-bg, var(--accent-soft));
-    color:var(--icon-color, var(--accent));
+    color:var(--icon-color, var(--charcoal));
     flex-shrink:0;
   }
   .edit-btn{
@@ -179,7 +335,7 @@
     transition:opacity .12s ease, color .12s ease;
   }
   .card:hover .edit-btn{opacity:1;}
-  .edit-btn:hover{color:var(--accent);}
+  .edit-btn:hover{color:var(--charcoal);}
   .card-title{
     font-family:'Space Grotesk', sans-serif;
     font-weight:600;
@@ -196,8 +352,14 @@
     white-space:nowrap;
     margin-top:-6px;
   }
+  .card-cat-chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    color:var(--ink-faint);
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+  }
 
-  /* add card */
   .add-card{
     background:transparent;
     border:1.5px dashed var(--line-strong);
@@ -208,8 +370,8 @@
     gap:8px;
   }
   .add-card:hover{
-    border-color:var(--accent);
-    color:var(--accent);
+    border-color:var(--charcoal);
+    color:var(--charcoal);
     background:var(--accent-soft);
     box-shadow:none;
     transform:none;
@@ -234,10 +396,10 @@
     line-height:1.7;
   }
 
-  /* modal */
+  /* ---- modal ---- */
   .overlay{
     position:fixed; inset:0;
-    background:rgba(54,69,79,0.35);
+    background:rgba(33,41,48,0.4);
     backdrop-filter:blur(2px);
     display:none;
     align-items:center;
@@ -252,7 +414,7 @@
     width:100%;
     max-width:400px;
     padding:26px;
-    box-shadow:0 24px 60px rgba(31,111,235,0.14), 0 4px 16px rgba(0,0,0,0.08);
+    box-shadow:0 24px 60px rgba(33,41,48,0.16), 0 4px 16px rgba(0,0,0,0.08);
   }
   .modal h2{
     font-family:'Space Grotesk', sans-serif;
@@ -270,7 +432,7 @@
     color:var(--ink-faint);
     margin-bottom:6px;
   }
-  .field input{
+  .field input, .field select{
     width:100%;
     padding:10px 12px;
     border:1px solid var(--line);
@@ -281,8 +443,9 @@
     background:var(--bg);
     color:var(--ink);
   }
+  .field select{appearance:none; background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23708090' stroke-width='2'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e"); background-repeat:no-repeat; background-position:right 12px center; background-size:16px; padding-right:34px;}
   .field input::placeholder{color:var(--ink-faint);}
-  .field input:focus{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);}
+  .field input:focus, .field select:focus{border-color:var(--charcoal); box-shadow:0 0 0 3px var(--accent-soft);}
   .swatches{display:flex; gap:8px; margin-top:2px;}
   .swatch{
     width:26px; height:26px;
@@ -307,20 +470,44 @@
     border:1px solid transparent;
     cursor:pointer;
   }
-  .btn-primary{background:var(--accent); color:#fff;}
-  .btn-primary:hover{background:#1a5fd0;}
+  .btn-primary{background:var(--charcoal); color:#fff;}
+  .btn-primary:hover{background:var(--charcoal-darker);}
   .btn-primary:disabled{opacity:0.6; cursor:default;}
   .btn-ghost{background:none; color:var(--ink-soft); border-color:var(--line);}
   .btn-ghost:hover{color:var(--ink); border-color:var(--line-strong);}
   .btn-danger{background:none; color:var(--err);}
   .btn-danger:hover{text-decoration:underline;}
 
-  footer{
+  footer.page-footer{
     margin-top:48px;
     text-align:center;
     font-family:'IBM Plex Mono', monospace;
     font-size:11px;
     color:var(--ink-faint);
+  }
+
+  /* ---- mobile ---- */
+  .mobile-topbar{display:none;}
+  @media (max-width: 860px){
+    .shell{flex-direction:column;}
+    .sidebar{
+      width:100%;
+      height:auto;
+      position:relative;
+      flex-direction:row;
+      align-items:center;
+      padding:14px 16px;
+      overflow-x:auto;
+      overflow-y:hidden;
+      gap:14px;
+    }
+    .side-brand{padding:0; flex-shrink:0;}
+    .side-section-label{display:none;}
+    .nav-list{flex-direction:row; flex-shrink:0;}
+    .nav-item{white-space:nowrap;}
+    .add-cat-btn{width:auto; margin-top:0; flex-shrink:0;}
+    .sidebar-footer{display:none;}
+    .main{padding:26px 18px 70px;}
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -330,30 +517,50 @@
 </head>
 <body>
 
-<div class="wrap">
+<div class="shell">
 
-  <header>
-    <div class="brand">
-      <div class="brand-mark">IT</div>
+  <nav class="sidebar" id="sidebar">
+    <div class="side-brand">
+      <div class="side-mark">IT</div>
       <div>
         <h1>ศูนย์รวมระบบ</h1>
-        <div class="sub">แผนกไอที · จุดเข้าถึงเว็บแอปพลิเคชันทั้งหมด</div>
+        <div class="sub">แผนกไอที</div>
       </div>
     </div>
-    <div class="status-line"><span class="dot"></span><span id="status-text">กำลังโหลด...</span></div>
-  </header>
 
-  <div class="toolbar">
-    <span class="count-label" id="count-label">0 ระบบ</span>
-    <input type="text" id="search" placeholder="ค้นหาระบบ...">
+    <div class="side-section-label">หมวดหมู่</div>
+    <ul class="nav-list" id="nav-list"></ul>
+
+    <button class="add-cat-btn" id="add-cat-btn" type="button">+ เพิ่มหมวดหมู่</button>
+
+    <div class="sidebar-footer">ลาก ⋮⋮ เพื่อจัดลำดับหมวดหมู่</div>
+  </nav>
+
+  <div class="main">
+    <div class="wrap">
+
+      <header>
+        <div>
+          <h2 class="page-title" id="page-title">ทั้งหมด</h2>
+          <div class="page-sub" id="page-sub">จุดเข้าถึงเว็บแอปพลิเคชันทั้งหมด</div>
+        </div>
+        <div class="status-line"><span class="dot"></span><span id="status-text">กำลังโหลด...</span></div>
+      </header>
+
+      <div class="toolbar">
+        <span class="count-label" id="count-label">0 ระบบ</span>
+        <input type="text" id="search" placeholder="ค้นหาระบบ...">
+      </div>
+
+      <div class="grid" id="grid"></div>
+
+      <footer class="page-footer">เพิ่ม แก้ไข หรือลบระบบและหมวดหมู่ได้จากหน้านี้ · ข้อมูลซิงก์กับฐานข้อมูลกลาง</footer>
+    </div>
   </div>
 
-  <div class="grid" id="grid"></div>
-
-  <footer>เพิ่ม แก้ไข หรือลบระบบได้จากหน้านี้ · ข้อมูลซิงก์กับฐานข้อมูลกลาง</footer>
 </div>
 
-<!-- Modal -->
+<!-- Modal: Link -->
 <div class="overlay" id="overlay">
   <div class="modal">
     <h2 id="modal-title">เพิ่มระบบใหม่</h2>
@@ -365,6 +572,10 @@
     <div class="field">
       <label for="f-url">ลิงก์ (URL)</label>
       <input type="text" id="f-url" placeholder="https://...">
+    </div>
+    <div class="field">
+      <label for="f-category">หมวดหมู่</label>
+      <select id="f-category"></select>
     </div>
     <div class="field">
       <label>สี</label>
@@ -385,16 +596,46 @@
   </div>
 </div>
 
+<!-- Modal: Category -->
+<div class="overlay" id="cat-overlay">
+  <div class="modal">
+    <h2 id="cat-modal-title">เพิ่มหมวดหมู่ใหม่</h2>
+    <input type="hidden" id="cat-edit-id">
+    <div class="field">
+      <label for="f-cat-name">ชื่อหมวดหมู่</label>
+      <input type="text" id="f-cat-name" placeholder="เช่น ระบบภายใน">
+    </div>
+    <div class="field">
+      <label for="f-cat-pass">รหัสผ่านแก้ไข</label>
+      <input type="password" id="f-cat-pass" placeholder="รหัสผ่านสำหรับเพิ่ม/แก้ไข/ลบ">
+    </div>
+    <div class="field-error" id="cat-modal-error" style="display:none; color:var(--err); font-family:'IBM Plex Mono', monospace; font-size:12px; margin-top:-8px;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="cat-delete-btn" style="display:none;">ลบหมวดหมู่</button>
+      <div style="display:flex; gap:8px; margin-left:auto;">
+        <button class="btn btn-ghost" id="cat-cancel-btn">ยกเลิก</button>
+        <button class="btn btn-primary" id="cat-save-btn">บันทึก</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   // 🔧 วาง Web App URL จาก Google Apps Script ตรงนี้ (ดูขั้นตอนใน Code.gs)
-  const API_URL = 'https://script.google.com/macros/s/AKfycbxLp44JxIup7O62qRZ5rJ1_4-EuXV9g_cOnzziazIlKGXbxPHqPGiWXgjyHFzOKUaOg/exec';
+  const API_URL = 'https://script.google.com/macros/s/AKfycbw221vgMtPYRDqzc8gspvx9cE_Trzdj43Pwv-e61BQl1ktsCMHD_MXYmQF3z-mUdyk/exec';
 
-  const COLORS = ['#1f6feb','#06b6d4','#5b6fd8','#0f9c8f','#708090','#c98a3e'];
-  const CACHE_KEY = 'it-console-cache-v1';
+  const COLORS = ['#36454f','#708090','#5b6fd8','#0f9c8f','#c98a3e','#8a5fb0'];
+  const CACHE_KEY = 'it-console-cache-v2';
+  const UNCATEGORIZED = '__uncategorized__';
+  const ALL = '__all__';
 
   let apps = [];
+  let categories = [];
   let selectedColor = COLORS[0];
   let editingId = null;
+  let editingCategoryId = null;
+  let activeCategory = ALL;
+  let dragSrcId = null;
 
   function loadCache(){
     try{
@@ -402,8 +643,8 @@
       return raw ? JSON.parse(raw) : null;
     }catch(e){ return null; }
   }
-  function saveCache(list){
-    try{ localStorage.setItem(CACHE_KEY, JSON.stringify(list)); }
+  function saveCache(){
+    try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ apps, categories })); }
     catch(e){ /* ไม่เป็นไร ข้ามได้ */ }
   }
 
@@ -411,7 +652,7 @@
   const statusText = document.getElementById('status-text');
 
   function setStatus(state, label){
-    statusDot.style.background = state === 'error' ? 'var(--err)' : (state === 'loading' ? '#e08a1f' : 'var(--cyan)');
+    statusDot.style.background = state === 'error' ? 'var(--err)' : (state === 'loading' ? 'var(--ink-faint)' : 'var(--slate)');
     statusText.textContent = label;
   }
 
@@ -427,13 +668,14 @@
       const data = await res.json();
       if(!data.ok) throw new Error(data.error || 'โหลดข้อมูลไม่สำเร็จ');
       apps = data.apps || [];
-      saveCache(apps);
+      categories = (data.categories || []).slice().sort((a,b) => a.order - b.order);
+      saveCache();
       setStatus('ok', 'ข้อมูลอัปเดตล่าสุด');
+      renderSidebar();
       render();
     }catch(err){
       console.error(err);
       if(apps.length){
-        // มีข้อมูลจากแคชอยู่แล้ว แค่แจ้งว่าอัปเดตล่าสุดไม่สำเร็จ ไม่ต้องเคลียร์หน้าจอ
         setStatus('error', 'อัปเดตข้อมูลล่าสุดไม่สำเร็จ (แสดงข้อมูลที่บันทึกไว้)');
       }else{
         setStatus('error', 'โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชอีกครั้ง');
@@ -450,21 +692,34 @@
     return data;
   }
 
+  const navList = document.getElementById('nav-list');
+  const pageTitle = document.getElementById('page-title');
+  const pageSub = document.getElementById('page-sub');
   const grid = document.getElementById('grid');
   const searchInput = document.getElementById('search');
   const countLabel = document.getElementById('count-label');
+
   const overlay = document.getElementById('overlay');
   const modalTitle = document.getElementById('modal-title');
   const nameInput = document.getElementById('f-name');
   const urlInput = document.getElementById('f-url');
+  const categorySelect = document.getElementById('f-category');
   const swatchesEl = document.getElementById('swatches');
   const deleteBtn = document.getElementById('delete-btn');
   const passInput = document.getElementById('f-pass');
   const modalError = document.getElementById('modal-error');
   const saveBtn = document.getElementById('save-btn');
 
+  const catOverlay = document.getElementById('cat-overlay');
+  const catModalTitle = document.getElementById('cat-modal-title');
+  const catNameInput = document.getElementById('f-cat-name');
+  const catPassInput = document.getElementById('f-cat-pass');
+  const catModalError = document.getElementById('cat-modal-error');
+  const catSaveBtn = document.getElementById('cat-save-btn');
+  const catDeleteBtn = document.getElementById('cat-delete-btn');
+
   function initials(name){
-    const clean = name.trim();
+    const clean = (name || '').trim();
     if(!clean) return '?';
     const parts = clean.split(/\s+/);
     if(parts.length === 1) return clean.slice(0,2).toUpperCase();
@@ -480,14 +735,143 @@
     }
   }
 
+  function categoryName(id){
+    if(!id) return 'ไม่ได้จัดหมวดหมู่';
+    const c = categories.find(c => c.id === id);
+    return c ? c.name : 'ไม่ได้จัดหมวดหมู่';
+  }
+
+  function countFor(catId){
+    if(catId === ALL) return apps.length;
+    if(catId === UNCATEGORIZED) return apps.filter(a => !a.categoryId || !categories.some(c => c.id === a.categoryId)).length;
+    return apps.filter(a => a.categoryId === catId).length;
+  }
+
+  // ---------- Sidebar ----------
+  function renderSidebar(){
+    navList.innerHTML = '';
+
+    navList.appendChild(makeNavItem({ id: ALL, name: 'ทั้งหมด', icon: '＃' }, false));
+
+    categories.forEach(cat => {
+      navList.appendChild(makeNavItem(cat, true));
+    });
+
+    navList.appendChild(makeNavItem({ id: UNCATEGORIZED, name: 'ไม่ได้จัดหมวดหมู่', icon: '·' }, false));
+  }
+
+  function makeNavItem(cat, editable){
+    const li = document.createElement('li');
+    li.className = 'nav-item cat-item' + (activeCategory === cat.id ? ' active' : '');
+    li.dataset.id = cat.id;
+
+    const iconChar = cat.icon || initials(cat.name);
+    li.innerHTML = `
+      <span class="nav-icon">${escapeHtml(iconChar)}</span>
+      <span class="nav-label">${escapeHtml(cat.name)}</span>
+      <span class="nav-count">${countFor(cat.id)}</span>
+      ${editable ? `<span class="cat-actions">
+        <button class="cat-action-btn" type="button" data-act="edit" title="แก้ไขหมวดหมู่">✎</button>
+      </span>` : ''}
+    `;
+
+    li.addEventListener('click', (e) => {
+      if(e.target.closest('.cat-action-btn')) return;
+      activeCategory = cat.id;
+      renderSidebar();
+      render();
+    });
+
+    if(editable){
+      li.querySelector('[data-act="edit"]').addEventListener('click', (e) => {
+        e.stopPropagation();
+        openCategoryModal(cat);
+      });
+      li.setAttribute('draggable', 'true');
+      li.addEventListener('dragstart', (e) => {
+        dragSrcId = cat.id;
+        li.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      li.addEventListener('dragend', () => {
+        li.classList.remove('dragging');
+        document.querySelectorAll('.cat-item').forEach(el => el.classList.remove('drag-over'));
+      });
+      li.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        li.classList.add('drag-over');
+      });
+      li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
+      li.addEventListener('drop', (e) => {
+        e.preventDefault();
+        li.classList.remove('drag-over');
+        if(!dragSrcId || dragSrcId === cat.id) return;
+        reorderCategories(dragSrcId, cat.id);
+      });
+    }
+
+    return li;
+  }
+
+  async function reorderCategories(srcId, targetId){
+    const srcIdx = categories.findIndex(c => c.id === srcId);
+    const targetIdx = categories.findIndex(c => c.id === targetId);
+    if(srcIdx === -1 || targetIdx === -1) return;
+    const reordered = categories.slice();
+    const [moved] = reordered.splice(srcIdx, 1);
+    reordered.splice(targetIdx, 0, moved);
+    categories = reordered;
+    renderSidebar();
+    try{
+      await callApi({ action:'reorderCategories', ids: reordered.map(c => c.id).join(','), passcode: lastKnownPasscode() });
+    }catch(err){
+      // การจัดลำดับต้องใช้รหัสผ่าน — ถ้าไม่มีให้ขอตอนนี้
+      const passcode = prompt('กรุณากรอกรหัสผ่านเพื่อบันทึกลำดับหมวดหมู่ใหม่');
+      if(passcode){
+        try{
+          await callApi({ action:'reorderCategories', ids: reordered.map(c => c.id).join(','), passcode });
+        }catch(e2){
+          alert(e2.message);
+          await fetchApps();
+        }
+      }else{
+        await fetchApps();
+      }
+    }
+  }
+
+  let _rememberedPasscode = '';
+  function lastKnownPasscode(){ return _rememberedPasscode; }
+
+  // ---------- Grid ----------
   function render(){
     const q = searchInput.value.trim().toLowerCase();
-    const filtered = apps.filter(a => a.name.toLowerCase().includes(q) || a.url.toLowerCase().includes(q));
 
-    countLabel.textContent = apps.length + ' ระบบ';
+    let base = apps;
+    if(activeCategory === UNCATEGORIZED){
+      base = apps.filter(a => !a.categoryId || !categories.some(c => c.id === a.categoryId));
+    }else if(activeCategory !== ALL){
+      base = apps.filter(a => a.categoryId === activeCategory);
+    }
+
+    const filtered = base.filter(a => a.name.toLowerCase().includes(q) || a.url.toLowerCase().includes(q));
+
+    if(activeCategory === ALL){
+      pageTitle.textContent = 'ทั้งหมด';
+      pageSub.textContent = 'จุดเข้าถึงเว็บแอปพลิเคชันทั้งหมด';
+    }else if(activeCategory === UNCATEGORIZED){
+      pageTitle.textContent = 'ไม่ได้จัดหมวดหมู่';
+      pageSub.textContent = 'ระบบที่ยังไม่ถูกจัดเข้าหมวดหมู่';
+    }else{
+      const cat = categories.find(c => c.id === activeCategory);
+      pageTitle.textContent = cat ? cat.name : 'หมวดหมู่';
+      pageSub.textContent = 'ระบบในหมวดหมู่นี้';
+    }
+
+    countLabel.textContent = base.length + ' ระบบ';
     grid.innerHTML = '';
 
-    if(apps.length && !filtered.length){
+    if(base.length && !filtered.length){
       grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">ไม่พบระบบที่ค้นหา</div>';
     }
 
@@ -505,6 +889,7 @@
         <div>
           <div class="card-title">${escapeHtml(app.name)}</div>
           <div class="card-url">${escapeHtml(hostLabel(app.url))}</div>
+          ${activeCategory === ALL ? `<div class="card-cat-chip">${escapeHtml(categoryName(app.categoryId))}</div>` : ''}
         </div>
       `;
       card.querySelector('.edit-btn').addEventListener('click', (e) => {
@@ -544,6 +929,22 @@
     });
   }
 
+  function buildCategoryOptions(selectedId){
+    categorySelect.innerHTML = '';
+    const noneOpt = document.createElement('option');
+    noneOpt.value = '';
+    noneOpt.textContent = 'ไม่ได้จัดหมวดหมู่';
+    categorySelect.appendChild(noneOpt);
+    categories.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat.id;
+      opt.textContent = cat.name;
+      categorySelect.appendChild(opt);
+    });
+    categorySelect.value = selectedId || '';
+  }
+
+  // ---------- Link modal ----------
   function openModal(app){
     editingId = app ? app.id : null;
     modalTitle.textContent = app ? 'แก้ไขระบบ' : 'เพิ่มระบบใหม่';
@@ -556,6 +957,10 @@
     selectedColor = app ? app.color : COLORS[apps.length % COLORS.length];
     deleteBtn.style.display = app ? 'inline-block' : 'none';
     buildSwatches();
+
+    const defaultCat = (activeCategory !== ALL && activeCategory !== UNCATEGORIZED) ? activeCategory : '';
+    buildCategoryOptions(app ? app.categoryId : defaultCat);
+
     overlay.classList.add('open');
     setTimeout(() => nameInput.focus(), 50);
   }
@@ -571,6 +976,7 @@
     const name = nameInput.value.trim();
     let url = urlInput.value.trim();
     const passcode = passInput.value;
+    const categoryId = categorySelect.value;
     modalError.style.display = 'none';
 
     if(!name || !url){
@@ -589,10 +995,11 @@
     saveBtn.textContent = 'กำลังบันทึก...';
     try{
       if(editingId){
-        await callApi({ action:'update', id:editingId, name, url, color:selectedColor, passcode });
+        await callApi({ action:'update', id:editingId, name, url, color:selectedColor, categoryId, passcode });
       }else{
-        await callApi({ action:'add', name, url, color:selectedColor, passcode });
+        await callApi({ action:'add', name, url, color:selectedColor, categoryId, passcode });
       }
+      _rememberedPasscode = passcode;
       await fetchApps();
       closeModal();
     }catch(err){
@@ -615,6 +1022,7 @@
     deleteBtn.disabled = true;
     try{
       await callApi({ action:'delete', id:editingId, passcode });
+      _rememberedPasscode = passcode;
       await fetchApps();
       closeModal();
     }catch(err){
@@ -625,15 +1033,98 @@
     }
   });
 
+  // ---------- Category modal ----------
+  document.getElementById('add-cat-btn').addEventListener('click', () => openCategoryModal(null));
+
+  function openCategoryModal(cat){
+    editingCategoryId = cat ? cat.id : null;
+    catModalTitle.textContent = cat ? 'แก้ไขหมวดหมู่' : 'เพิ่มหมวดหมู่ใหม่';
+    catNameInput.value = cat ? cat.name : '';
+    catPassInput.value = '';
+    catModalError.style.display = 'none';
+    catNameInput.style.borderColor = 'var(--line)';
+    catDeleteBtn.style.display = cat ? 'inline-block' : 'none';
+    catOverlay.classList.add('open');
+    setTimeout(() => catNameInput.focus(), 50);
+  }
+
+  function closeCategoryModal(){
+    catOverlay.classList.remove('open');
+  }
+
+  document.getElementById('cat-cancel-btn').addEventListener('click', closeCategoryModal);
+  catOverlay.addEventListener('click', (e) => { if(e.target === catOverlay) closeCategoryModal(); });
+
+  catSaveBtn.addEventListener('click', async () => {
+    const name = catNameInput.value.trim();
+    const passcode = catPassInput.value;
+    catModalError.style.display = 'none';
+
+    if(!name){
+      catNameInput.style.borderColor = 'var(--err)';
+      return;
+    }
+    if(!passcode){
+      catModalError.textContent = 'กรุณากรอกรหัสผ่าน';
+      catModalError.style.display = 'block';
+      return;
+    }
+
+    catSaveBtn.disabled = true;
+    catSaveBtn.textContent = 'กำลังบันทึก...';
+    try{
+      if(editingCategoryId){
+        await callApi({ action:'updateCategory', id:editingCategoryId, name, passcode });
+      }else{
+        await callApi({ action:'addCategory', name, passcode });
+      }
+      _rememberedPasscode = passcode;
+      await fetchApps();
+      closeCategoryModal();
+    }catch(err){
+      catModalError.textContent = err.message;
+      catModalError.style.display = 'block';
+    }finally{
+      catSaveBtn.disabled = false;
+      catSaveBtn.textContent = 'บันทึก';
+    }
+  });
+
+  catDeleteBtn.addEventListener('click', async () => {
+    const passcode = catPassInput.value;
+    catModalError.style.display = 'none';
+    if(!passcode){
+      catModalError.textContent = 'กรุณากรอกรหัสผ่านเพื่อลบ';
+      catModalError.style.display = 'block';
+      return;
+    }
+    if(!confirm('ลบหมวดหมู่นี้? ระบบที่อยู่ในหมวดจะถูกย้ายไปที่ "ไม่ได้จัดหมวดหมู่"')) return;
+    catDeleteBtn.disabled = true;
+    try{
+      await callApi({ action:'deleteCategory', id:editingCategoryId, passcode });
+      _rememberedPasscode = passcode;
+      if(activeCategory === editingCategoryId) activeCategory = ALL;
+      await fetchApps();
+      closeCategoryModal();
+    }catch(err){
+      catModalError.textContent = err.message;
+      catModalError.style.display = 'block';
+    }finally{
+      catDeleteBtn.disabled = false;
+    }
+  });
+
   searchInput.addEventListener('input', render);
 
   document.addEventListener('keydown', (e) => {
-    if(e.key === 'Escape') closeModal();
+    if(e.key === 'Escape'){ closeModal(); closeCategoryModal(); }
   });
 
   const cached = loadCache();
-  if(cached && cached.length){
-    apps = cached;
+  if(cached && cached.apps && cached.apps.length){
+    apps = cached.apps;
+    categories = (cached.categories || []).slice().sort((a,b) => a.order - b.order);
+    renderSidebar();
     render();
     setStatus('loading', 'กำลังอัปเดตข้อมูลล่าสุด...');
     fetchApps(true);
